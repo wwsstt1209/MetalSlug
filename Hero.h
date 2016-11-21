@@ -1,6 +1,7 @@
 #pragma once
 #include "cocos2d.h"
 #include "Launcher.h"
+#include "Bomb.h"
 #include "HeroInfo.h"
 #include "cocostudio\CocoStudio.h"
 USING_NS_CC;

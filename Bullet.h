@@ -9,7 +9,7 @@ public:
 	static Bullet* create();
 	bool init();
 	void update(float dt);
-	void initData(bool, float, int);//0123上右下左
+	void initData(bool ownToPlayer, float speed, int toward);//0123上右下左
 private:
 	bool m_ownToPlayer;
 	float m_speed;

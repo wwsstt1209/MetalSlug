@@ -17,7 +17,7 @@ HeroInfo::HeroInfo()
 	m_heroLife = 9;
 	m_bombNum = 9;
 	m_act = STAND;
-	m_gun = SMALL;
+	m_gun = MEDIUM;
 	m_towardX = RIGHT;
 	m_towardY = NORMAL;
 	m_speed = 3;
@@ -26,4 +26,5 @@ HeroInfo::HeroInfo()
 	m_isHitting = 0;
 	m_isThrowing = 0;
 	m_potHit = 0;
+	m_jumpStartY = 0;
 }

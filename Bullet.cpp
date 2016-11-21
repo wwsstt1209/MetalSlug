@@ -39,10 +39,10 @@ void Bullet::update(float dt)
 	case 1:
 		this->setPositionX(this->getPositionX() + m_speed);
 		break;
-	//case 2:
-	//	this->setRotation(90);
-	//	this->setPositionY(this->getPositionY() - m_speed);
-	//	break;
+	case 2:
+		this->setRotation(90);
+		this->setPositionY(this->getPositionY() - m_speed);
+		break;
 	case 3:
 		this->setRotation(-180);
 		this->setPositionX(this->getPositionX() - m_speed);
@@ -53,10 +53,8 @@ void Bullet::update(float dt)
 	auto wndRect = Rect{ 0, 0, Director::getInstance()->getVisibleSize().width, Director::getInstance()->getVisibleSize().height };
 	if (!wndRect.containsPoint(this->getPosition()))
 	{
+		//BattleManager::getInstance()->eraseBullet(this);
 		this->removeFromParent();
-		static int x = 0;
-		x++;
-		CCLOG("%d", x);
 	}
 }
 
@@ -67,7 +65,18 @@ void Bullet::initData(bool b, float speed, int toward)
 	m_toward = toward;
 	if (m_ownToPlayer)
 	{
-		m_bulletSprite->initWithFile("image2376.png");
+		switch (HeroInfo::getInstance()->m_gun)
+		{
+		case SMALL:
+			m_bulletSprite->initWithFile("image2376.png");
+			break;
+		case MEDIUM:
+			m_bulletSprite->initWithFile("image2403.png");
+			break;
+		case GIANT:
+			m_bulletSprite->initWithFile("image2416.png");    // ”––Ú¡–÷°
+			break;
+		}
 	}
 	else
 	{

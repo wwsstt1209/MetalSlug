@@ -48,7 +48,7 @@ void Hero::update(float dt)
 	{
 	case STAND:
 	{
-		if (!heroInfo->m_isHitting)
+		if (!heroInfo->m_isHitting && !heroInfo->m_isThrowing)
 		{
 			if (heroInfo->m_gun == SMALL)
 			{
@@ -62,6 +62,12 @@ void Hero::update(float dt)
 			else
 			{
 				//如果是机关枪
+				if (movementID != "stand_stop_rushgun_LR" && heroInfo->m_towardY == NORMAL)
+					m_armature->getAnimation()->play("stand_stop_rushgun_LR");
+				else if (movementID != "stand_stop_rushgun_UP" && heroInfo->m_towardY == UP)
+					m_armature->getAnimation()->play("stand_stop_rushgun_UP");
+				else if (movementID != "squat_stop_rushgun_LR" && heroInfo->m_towardY == DOWN)
+					m_armature->getAnimation()->play("squat_stop_rushgun_LR");
 			}
 		}
 		break;
@@ -70,7 +76,7 @@ void Hero::update(float dt)
 	{
 		if (heroInfo->m_towardX_state == 0)
 			heroInfo->m_act = STAND; 
-		if (heroInfo->m_act != JUMP && !heroInfo->m_isHitting)
+		if (heroInfo->m_act != JUMP && !heroInfo->m_isHitting && !heroInfo->m_isThrowing)
 		{
 			if (heroInfo->m_gun == SMALL)
 			{
@@ -84,23 +90,19 @@ void Hero::update(float dt)
 			else
 			{
 				//如果是机关枪
-			}
-			if (heroInfo->m_towardX_state == 2)
-			{
-				heroInfo->m_towardX = LEFT;
-				this->setPositionX(this->getPositionX() - heroInfo->m_speed);
-			}
-			if (heroInfo->m_towardX_state == 1)
-			{
-				heroInfo->m_towardX = RIGHT;
-				this->setPositionX(this->getPositionX() + heroInfo->m_speed);
+				if (movementID != "stand_move_rushgun_LR" && heroInfo->m_towardY == NORMAL)
+					m_armature->getAnimation()->play("stand_move_rushgun_LR");
+				else if (movementID != "stand_move_rushgun_UP" && heroInfo->m_towardY == UP)
+					m_armature->getAnimation()->play("stand_move_rushgun_UP");
+				else if (movementID != "squat_move_rushgun_LR" && heroInfo->m_towardY == DOWN)
+					m_armature->getAnimation()->play("squat_move_rushgun_LR");
 			}
 		}
 		break;
 	}
 	case JUMP:
 	{
-		if (!heroInfo->m_isHitting)
+		if (!heroInfo->m_isHitting && !heroInfo->m_isThrowing)
 		{
 			if (heroInfo->m_gun == SMALL)
 			{
@@ -110,6 +112,8 @@ void Hero::update(float dt)
 			else
 			{
 				//如果是机关枪
+				if (movementID != "jump_normal_rushgun_LR" && heroInfo->m_isHitting == 0 && heroInfo->m_isThrowing == 0)
+					m_armature->getAnimation()->play("jump_normal_rushgun_LR");
 			}
 		}
 		jump();
@@ -138,7 +142,7 @@ void Hero::jump()
 	//}
 	this->setPositionY(this->getPositionY() + heroInfo->m_speedUp);
 	--heroInfo->m_speedUp;
-	if (this->getPositionY() <= Director::getInstance()->getVisibleSize().height / 2)  //调整下落位置
+	if (this->getPositionY() <= heroInfo->m_jumpStartY)  //调整下落位置
 	{
 		heroInfo->m_speedUp = 0;
 		heroInfo->m_act = MOVE;
@@ -148,7 +152,7 @@ void Hero::jump()
 void Hero::setLayer(Layer* pLayer)
 {
 	m_layer = pLayer;
-	m_launcher->initData(m_layer, 0);
+	m_launcher->initData(m_layer, (int)(HeroInfo::getInstance()->m_gun));
 }
 
 void Hero::hit()   //可以加上枪支开火动画效果
@@ -160,12 +164,18 @@ void Hero::hit()   //可以加上枪支开火动画效果
 		if (HeroInfo::getInstance()->m_towardX == LEFT)
 		{
 			toward = 3;
-			m_launcher->setPosition(Vec2(-25, 15));
+			if (heroInfo->m_gun == SMALL)
+				m_launcher->setPosition(Vec2(-25, 18));
+			else
+				m_launcher->setPosition(Vec2(-25, 10));
 		}
 		else
 		{
 			toward = 1;
-			m_launcher->setPosition(Vec2(-25, 15));
+			if (heroInfo->m_gun == SMALL)
+				m_launcher->setPosition(Vec2(-25, 18));
+			else
+				m_launcher->setPosition(Vec2(-25, 10));
 		}
 		if (HeroInfo::getInstance()->m_towardY == UP)
 		{
@@ -178,7 +188,10 @@ void Hero::hit()   //可以加上枪支开火动画效果
 			{
 				toward = 2;
 			}
-			m_launcher->setPosition(Vec2(-15, 0));
+			if (heroInfo->m_gun == SMALL)
+				m_launcher->setPosition(Vec2(-15, 13));
+			else
+				m_launcher->setPosition(Vec2(-15, 5));
 		}
 	}
 	{
@@ -348,7 +361,76 @@ void Hero::hit()   //可以加上枪支开火动画效果
 
 void Hero::throwBomb()
 {
-
+	auto heroInfo = HeroInfo::getInstance();
+	switch (heroInfo->m_act)
+	{
+	case STAND:
+		if (heroInfo->m_towardY == DOWN)
+		{
+			if (heroInfo->m_gun == SMALL)
+			{
+				m_armature->getAnimation()->play("squat_stop_handgun_throw");
+			}
+			else
+			{
+				m_armature->getAnimation()->play("squat_stop_rushgun_throw");
+			}
+		}
+		else
+		{
+			if (heroInfo->m_gun == SMALL)
+			{
+				m_armature->getAnimation()->play("stand_stop_handgun_throw");
+			}
+			else
+			{
+				m_armature->getAnimation()->play("stand_stop_rushgun_throw");
+			}
+		}
+		break;
+	case MOVE:
+		if (heroInfo->m_towardY == DOWN)
+		{
+			if (heroInfo->m_gun == SMALL)
+			{
+				m_armature->getAnimation()->play("squat_move_handgun_throw");
+			}
+			else
+			{
+				m_armature->getAnimation()->play("squat_move_rushgun_throw");
+			}
+		}
+		else
+		{
+			if (heroInfo->m_gun == SMALL)
+			{
+				m_armature->getAnimation()->play("stand_move_handgun_throw");
+			}
+			else
+			{
+				m_armature->getAnimation()->play("stand_move_rushgun_throw");
+			}
+		}
+		break;
+	case JUMP:
+		if (heroInfo->m_gun == SMALL)
+		{
+			m_armature->getAnimation()->play("jump_normal_handgun_throw");
+		}
+		else
+		{
+			m_armature->getAnimation()->play("jump_normal_rushgun_throw");
+		}
+		break;
+	default:
+		break;
+	}
+	//创建手雷逻辑
+	auto bomb = Bomb::create();
+	auto posInLayer = m_layer->convertToWorldSpace(this->getPosition());
+	bomb->setPosition(posInLayer + Vec2(20,35));
+	bomb->setBombData(10);
+	m_layer->addChild(bomb);
 }
 
 void Hero::armatureCallback(Armature *armature, MovementEventType movementType, const std::string& movementID)
@@ -358,7 +440,7 @@ void Hero::armatureCallback(Armature *armature, MovementEventType movementType, 
 	//{
 	//	if (movementID == "stand_stop_shoot_handgun_LR")   //手枪
 	//	{
-	//		CCLOG("123");
+	//		
 	//	}
 	//	else if (movementID == "")  //机关枪
 	//	{
@@ -399,9 +481,13 @@ void Hero::armatureCallback(Armature *armature, MovementEventType movementType, 
 	//
 	//	}
 	//}
-	if (movementType == MovementEventType::LOOP_COMPLETE)
+	if (movementType == MovementEventType::LOOP_COMPLETE && heroInfo->m_isHitting)
 	{
 		heroInfo->m_isHitting = 0;
 		heroInfo->m_potHit = 0;
+	}
+	if (movementType == MovementEventType::LOOP_COMPLETE && heroInfo->m_isThrowing)
+	{
+		heroInfo->m_isThrowing = 0;
 	}
 }

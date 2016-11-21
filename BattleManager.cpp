@@ -20,3 +20,13 @@ Hero* BattleManager::getHero()
 {
 	return m_hero;
 }
+
+void BattleManager::addBullet(Bullet* newBullet)
+{
+	vBullet.pushBack(newBullet); 
+}
+
+void BattleManager::eraseBullet(Bullet* newBullet)
+{
+	vBullet.eraseObject(newBullet);
+}

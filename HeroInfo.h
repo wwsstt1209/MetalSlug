@@ -24,6 +24,7 @@ public:
 	bool m_isHitting;
 	bool m_isThrowing;
 	bool m_potHit;
+	float m_jumpStartY;
 private:
 	HeroInfo();
 	~HeroInfo() {};

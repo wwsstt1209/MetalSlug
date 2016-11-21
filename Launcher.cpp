@@ -39,12 +39,45 @@ void Launcher::shoot(int toward)
 	{
 		auto b = Bullet::create();
 		b->setPosition(posLauncherInWorld);
-
 		b->initData(1, 10, toward);
 		m_layer->addChild(b);
-	}
+		//BattleManager::getInstance()->addBullet(b);
+	} 
 		break;
 	case 1:    //»ú¹ØÇ¹
+	{
+		auto createBullet1 = CallFunc::create([this, posLauncherInWorld, toward]()->void{
+			auto b = Bullet::create();
+			if (HeroInfo::getInstance()->m_towardY == UP)
+				b->setPosition(posLauncherInWorld + Vec2(2, 0));
+			else
+				b->setPosition(posLauncherInWorld + Vec2(0, 2));
+			b->initData(1, 10, toward);
+			m_layer->addChild(b);
+			//BattleManager::getInstance()->addBullet(b);
+		});
+		auto createBullet2 = CallFunc::create([this, posLauncherInWorld, toward]()->void{
+			auto b = Bullet::create();
+			if (HeroInfo::getInstance()->m_towardY == UP)
+				b->setPosition(posLauncherInWorld + Vec2(-2, 0));
+			else
+				b->setPosition(posLauncherInWorld + Vec2(0, -2));
+			b->initData(1, 10, toward);
+			m_layer->addChild(b);
+			//BattleManager::getInstance()->addBullet(b);
+		});
+		auto createBullet3 = CallFunc::create([this, posLauncherInWorld, toward]()->void{
+			auto b = Bullet::create();
+			if (HeroInfo::getInstance()->m_towardY == UP)
+				b->setPosition(posLauncherInWorld + Vec2(2, 0));
+			else
+				b->setPosition(posLauncherInWorld + Vec2(0, 2));
+			b->initData(1, 10, toward);
+			m_layer->addChild(b);
+			//BattleManager::getInstance()->addBullet(b);
+		});
+		this->runAction(Sequence::create(createBullet1, DelayTime::create(0.1), createBullet2, DelayTime::create(0.1), createBullet3, nullptr));
+	}
 		break;
 	case 2:    //µ¼µ¯
 		break;

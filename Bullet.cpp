@@ -16,7 +16,7 @@ Bullet* Bullet::create()
 
 bool Bullet::init()
 {
-	if (!Node::create())
+	if (!Node::init())
 	{
 		return 0;
 	}
@@ -53,7 +53,7 @@ void Bullet::update(float dt)
 	auto wndRect = Rect{ 0, 0, Director::getInstance()->getVisibleSize().width, Director::getInstance()->getVisibleSize().height };
 	if (!wndRect.containsPoint(this->getPosition()))
 	{
-		//BattleManager::getInstance()->eraseBullet(this);
+		BattleManager::getInstance()->vBullet.eraseObject(this);
 		this->removeFromParent();
 	}
 }

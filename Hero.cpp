@@ -16,7 +16,7 @@ Hero* Hero::create()
 
 bool Hero::init()
 {
-	if (!Node::create())
+	if (!Node::init())
 	{
 		return 0;
 	}
@@ -32,6 +32,7 @@ bool Hero::init()
 	m_launcher = Launcher::create();
 	m_launcher->setPosition(Vec2(0,10));
 	this->addChild(m_launcher);
+	m_launcher->initData((int)(HeroInfo::getInstance()->m_gun));
 	
 	return 1;
 }
@@ -147,12 +148,6 @@ void Hero::jump()
 		heroInfo->m_speedUp = 0;
 		heroInfo->m_act = MOVE;
 	}
-}
-
-void Hero::setLayer(Layer* pLayer)
-{
-	m_layer = pLayer;
-	m_launcher->initData(m_layer, (int)(HeroInfo::getInstance()->m_gun));
 }
 
 void Hero::hit()   //可以加上枪支开火动画效果
@@ -427,60 +422,16 @@ void Hero::throwBomb()
 	}
 	//创建手雷逻辑
 	auto bomb = Bomb::create();
-	auto posInLayer = m_layer->convertToWorldSpace(this->getPosition());
+	auto posInLayer = BattleManager::getInstance()->battleScene->convertToWorldSpace(this->getPosition());
 	bomb->setPosition(posInLayer + Vec2(20,35));
 	bomb->setBombData(10);
-	m_layer->addChild(bomb);
+	BattleManager::getInstance()->battleScene->addChild(bomb);
+	BattleManager::getInstance()->vBomb.pushBack(bomb);
 }
 
 void Hero::armatureCallback(Armature *armature, MovementEventType movementType, const std::string& movementID)
 {
 	auto heroInfo = HeroInfo::getInstance();
-	//if (movementType == MovementEventType::LOOP_COMPLETE && heroInfo->m_act == STAND)
-	//{
-	//	if (movementID == "stand_stop_shoot_handgun_LR")   //手枪
-	//	{
-	//		
-	//	}
-	//	else if (movementID == "")  //机关枪
-	//	{
-	//
-	//	}
-	//	else if (movementID == "")  //手雷
-	//	{
-	//
-	//	}
-	//}
-	//if (movementType == MovementEventType::LOOP_COMPLETE && heroInfo->m_act == MOVE)
-	//{
-	//	if (movementID == "")   //手枪
-	//	{
-	//
-	//	}
-	//	else if (movementID == "")  //机关枪
-	//	{
-	//
-	//	}
-	//	else if (movementID == "")  //手雷
-	//	{
-	//
-	//	}
-	//}
-	//if (movementType == MovementEventType::LOOP_COMPLETE && heroInfo->m_act == JUMP)
-	//{
-	//	if (movementID == "")   //手枪
-	//	{
-	//
-	//	}
-	//	else if (movementID == "")  //机关枪
-	//	{
-	//
-	//	}
-	//	else if (movementID == "")  //手雷
-	//	{
-	//
-	//	}
-	//}
 	if (movementType == MovementEventType::LOOP_COMPLETE && heroInfo->m_isHitting)
 	{
 		heroInfo->m_isHitting = 0;

@@ -3,6 +3,7 @@
 #include "Launcher.h"
 #include "Bomb.h"
 #include "HeroInfo.h"
+#include "BattleManager.h"
 #include "cocostudio\CocoStudio.h"
 USING_NS_CC;
 using namespace cocostudio;
@@ -16,10 +17,8 @@ public:
 	void jump();
 	void hit();
 	void throwBomb();
-	void setLayer(Layer*);
 	void armatureCallback(Armature *armature, MovementEventType movementType, const std::string& movementID);
 private:
 	Armature* m_armature = nullptr;
 	Launcher* m_launcher = nullptr;
-	Layer* m_layer;
 };

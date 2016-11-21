@@ -1,7 +1,6 @@
 #pragma once
 #include "cocos2d.h"
 #include "SceneManager.h"
-#include "BattleManager.h"
 #include "Hero.h"
 USING_NS_CC;
 

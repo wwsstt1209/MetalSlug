@@ -10,23 +10,3 @@ BattleManager* BattleManager::getInstance()
 	}
 	return instance;
 }
-
-BattleManager::BattleManager()
-{
-	m_hero = Hero::create();
-}
-
-Hero* BattleManager::getHero()
-{
-	return m_hero;
-}
-
-void BattleManager::addBullet(Bullet* newBullet)
-{
-	vBullet.pushBack(newBullet); 
-}
-
-void BattleManager::eraseBullet(Bullet* newBullet)
-{
-	vBullet.eraseObject(newBullet);
-}

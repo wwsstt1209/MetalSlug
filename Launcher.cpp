@@ -16,7 +16,7 @@ Launcher* Launcher::create()
 
 bool Launcher::init()
 {
-	if (!Node::create())
+	if (!Node::init())
 	{
 		return 0;
 	}
@@ -24,10 +24,9 @@ bool Launcher::init()
 	return 1;
 }
 
-void Launcher::initData(Layer* pLayer, int lvl)
+void Launcher::initData(int gunType)
 {
-	m_layer = pLayer;
-	m_level = lvl;
+	m_level = gunType;
 }
 
 void Launcher::shoot(int toward)
@@ -40,8 +39,8 @@ void Launcher::shoot(int toward)
 		auto b = Bullet::create();
 		b->setPosition(posLauncherInWorld);
 		b->initData(1, 10, toward);
-		m_layer->addChild(b);
-		//BattleManager::getInstance()->addBullet(b);
+		BattleManager::getInstance()->battleScene->addChild(b);
+		BattleManager::getInstance()->vBullet.pushBack(b);
 	} 
 		break;
 	case 1:    //»ú¹ØÇ¹
@@ -53,8 +52,8 @@ void Launcher::shoot(int toward)
 			else
 				b->setPosition(posLauncherInWorld + Vec2(0, 2));
 			b->initData(1, 10, toward);
-			m_layer->addChild(b);
-			//BattleManager::getInstance()->addBullet(b);
+			BattleManager::getInstance()->battleScene->addChild(b);
+			BattleManager::getInstance()->vBullet.pushBack(b);
 		});
 		auto createBullet2 = CallFunc::create([this, posLauncherInWorld, toward]()->void{
 			auto b = Bullet::create();
@@ -63,8 +62,8 @@ void Launcher::shoot(int toward)
 			else
 				b->setPosition(posLauncherInWorld + Vec2(0, -2));
 			b->initData(1, 10, toward);
-			m_layer->addChild(b);
-			//BattleManager::getInstance()->addBullet(b);
+			BattleManager::getInstance()->battleScene->addChild(b);
+			BattleManager::getInstance()->vBullet.pushBack(b);
 		});
 		auto createBullet3 = CallFunc::create([this, posLauncherInWorld, toward]()->void{
 			auto b = Bullet::create();
@@ -73,8 +72,8 @@ void Launcher::shoot(int toward)
 			else
 				b->setPosition(posLauncherInWorld + Vec2(0, 2));
 			b->initData(1, 10, toward);
-			m_layer->addChild(b);
-			//BattleManager::getInstance()->addBullet(b);
+			BattleManager::getInstance()->battleScene->addChild(b);
+			BattleManager::getInstance()->vBullet.pushBack(b);
 		});
 		this->runAction(Sequence::create(createBullet1, DelayTime::create(0.1), createBullet2, DelayTime::create(0.1), createBullet3, nullptr));
 	}

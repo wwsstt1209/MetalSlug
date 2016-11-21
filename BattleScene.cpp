@@ -18,6 +18,7 @@ bool BattleScene::init()
 	auto visibleSize = Director::getInstance()->getVisibleSize();
 	Vec2 origin = Director::getInstance()->getVisibleOrigin();
 	Director::getInstance()->setContentScaleFactor(1);
+	BattleManager::getInstance()->battleScene = this;
 
 	auto bombAnimation = Animation::create();
 	for (int i = 0; i < 15; ++i)
@@ -35,9 +36,8 @@ bool BattleScene::init()
 	heroInfoUI->setPosition(Vec2(visibleSize.width / 2, heroInfoUI->getContentSize().height / 2));
 	this->addChild(heroInfoUI);
 
-	auto myHero = BattleManager::getInstance()->getHero();
+	auto myHero = Hero::create();
 	myHero->setPosition(visibleSize / 5);
-	myHero->setLayer(this);
 	this->addChild(myHero);
 	myHero->setName("hero");
 

@@ -16,7 +16,7 @@ Item* Item::create()
 
 bool Item::init()
 {
-	if (!Node::create())
+	if (!Node::init())
 	{
 		return 0;
 	}

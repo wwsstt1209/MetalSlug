@@ -16,7 +16,7 @@ Bomb* Bomb::create()
 
 bool Bomb::init()
 {
-	if (!Node::create())
+	if (!Node::init())
 	{
 		return 0;
 	}

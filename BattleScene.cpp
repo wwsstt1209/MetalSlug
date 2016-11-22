@@ -20,7 +20,7 @@ bool BattleScene::init()
 	Director::getInstance()->setContentScaleFactor(1);
 	BattleManager::getInstance()->battleScene = this;
 
-	auto bombAnimation = Animation::create();
+	auto bombAnimation = Animation::create();							//º”‘ÿ ÷¿◊±¨’®∂Øª≠
 	for (int i = 0; i < 15; ++i)
 	{
 		auto fileName = StringUtils::format("image%d.png", i * 2 + 20);
@@ -28,20 +28,26 @@ bool BattleScene::init()
 	}
 	AnimationCache::getInstance()->addAnimation(bombAnimation, "bomb");
 
-	auto backGroud1 = Sprite::create("scene1/image242.jpg");
+	auto backGroud1 = Sprite::create("scene1/image242.jpg");			//±≥æ∞Õº
 	backGroud1->setPosition(visibleSize / 2);
 	this->addChild(backGroud1);
 
-	auto heroInfoUI = Sprite::create("ui/image1001.png");
+	auto heroInfoUI = Sprite::create("ui/image1001.png");				//”¢–€–≈œ¢¿∏
 	heroInfoUI->setPosition(Vec2(visibleSize.width / 2, heroInfoUI->getContentSize().height / 2));
 	this->addChild(heroInfoUI);
 
-	auto myHero = Hero::create();
+	auto myHero = Hero::create();				//¥¥Ω®”¢–€
 	myHero->setPosition(visibleSize / 5);
 	this->addChild(myHero);
+	myHero->setScaleX(-1);
 	myHero->setName("hero");
+	BattleManager::getInstance()->m_hero = myHero;
 
-	auto lis = EventListenerKeyboard::create();
+	auto enemy1 = EnemyNoGunCommon::create();
+	this->addChild(enemy1);
+	enemy1->setPosition(Vec2(400, 15) + visibleSize / 5);
+
+	auto lis = EventListenerKeyboard::create();						//º¸≈Ãº‡Ã˝∆˜
 	lis->onKeyPressed = CC_CALLBACK_2(BattleScene::pressKeyCallback, this);
 	lis->onKeyReleased = CC_CALLBACK_2(BattleScene::releaseKeyCallback, this);
 	_eventDispatcher->addEventListenerWithSceneGraphPriority(lis, this);
@@ -54,7 +60,6 @@ void BattleScene::update(float dt)
 	//Color3B transitColor = { 255, 255, 255 };
 	//Director::getInstance()->replaceScene(CCTransitionFade::create(4.0f, SceneManager::getInstance()->getDeadScene(), transitColor));
 	auto hero = (Hero*)getChildByName("hero");
-
 }
 
 void BattleScene::pressKeyCallback(EventKeyboard::KeyCode code, Event* evt)
@@ -117,12 +122,12 @@ void BattleScene::releaseKeyCallback(EventKeyboard::KeyCode code, Event* evt)
 	case EventKeyboard::KeyCode::KEY_A:
 		HeroInfo::getInstance()->m_towardX_state &= 13;
 		if (HeroInfo::getInstance()->m_act != JUMP && HeroInfo::getInstance()->m_towardX_state == 0)
-			HeroInfo::getInstance()->m_act = STAND;
+			HeroInfo::getInstance()->m_act = HeroAction::STAND;
 		break;
 	case EventKeyboard::KeyCode::KEY_D:
 		HeroInfo::getInstance()->m_towardX_state &= 14;
 		if (HeroInfo::getInstance()->m_act != JUMP && HeroInfo::getInstance()->m_towardX_state == 0)
-			HeroInfo::getInstance()->m_act = STAND;
+			HeroInfo::getInstance()->m_act = HeroAction::STAND;
 		break;
 	case EventKeyboard::KeyCode::KEY_S:
 		HeroInfo::getInstance()->m_speed = 2;

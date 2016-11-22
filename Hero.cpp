@@ -41,10 +41,6 @@ void Hero::update(float dt)
 {
 	auto heroInfo = HeroInfo::getInstance();
 	auto movementID = m_armature->getAnimation()->getCurrentMovementID();
-	if (HeroInfo::getInstance()->m_towardX)
-		this->setScaleX(-1);
-	else
-		this->setScaleX(1);
 	switch (HeroInfo::getInstance()->m_act)
 	{
 	case STAND:
@@ -124,9 +120,15 @@ void Hero::update(float dt)
 		break;
 	}
 	if (heroInfo->m_towardX_state == 2)
+	{
 		this->setPositionX(this->getPositionX() - heroInfo->m_speed);
+		this->setScaleX(1);
+	}
 	if (heroInfo->m_towardX_state == 1)
+	{
 		this->setPositionX(this->getPositionX() + heroInfo->m_speed);
+		this->setScaleX(-1);
+	}
 }
 
 void Hero::jump()

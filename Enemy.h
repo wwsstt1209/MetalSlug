@@ -3,14 +3,23 @@
 #include "BattleManager.h"
 USING_NS_CC;
 
+enum EnemyAction{ E_STAND, E_RUN, E_HIDE };
+
 class Enemy :public Node
 {
 public:
-	static Enemy* create(int);
-	bool init(int);
-	void update(float dt);
-private:
-	int m_type;				//0Õì²ì±ø 1Ç¹±ø 2»ð¼ý±ø 
+	static Enemy* create();
+	virtual bool init();
+	virtual void loadDeadSource();
+	virtual void loadSource(){};
+protected:
 	Sprite* m_body;
-
+	EnemyAction m_action;
+	int m_score;
+	Vector<SpriteFrame*>vStand;
+	Vector<SpriteFrame*>vRun;
+	Vector<SpriteFrame*>vDead1;
+	Vector<SpriteFrame*>vDead2;
+	Vector<SpriteFrame*>vDead3;
+	int m_hp;
 };

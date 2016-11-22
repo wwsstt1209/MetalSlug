@@ -1,6 +1,6 @@
 #pragma once
 
-enum Act{ STAND, MOVE, JUMP };
+enum HeroAction{ STAND, MOVE, JUMP };
 
 enum Gun{ SMALL, MEDIUM, GIANT };
 
@@ -14,7 +14,7 @@ public:
 	int m_score;
 	int m_heroLife;
 	int m_bombNum;
-	Act m_act;
+	HeroAction m_act;
 	Gun m_gun;
 	TowardX m_towardX;
 	TowardY m_towardY;

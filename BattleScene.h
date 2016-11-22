@@ -2,6 +2,7 @@
 #include "cocos2d.h"
 #include "SceneManager.h"
 #include "Hero.h"
+#include "AllEnemiesHeadfile.h"
 USING_NS_CC;
 
 class BattleScene :public Layer

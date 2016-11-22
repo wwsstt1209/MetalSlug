@@ -1,9 +1,9 @@
 #include "Enemy.h"
 
-Enemy* Enemy::create(int type)
+Enemy* Enemy::create()
 {
 	Enemy * ret = new (std::nothrow) Enemy();
-	if (ret && ret->init(type))
+	if (ret && ret->init())
 	{
 		ret->autorelease();
 	}
@@ -14,44 +14,39 @@ Enemy* Enemy::create(int type)
 	return ret;
 }
 
-bool Enemy::init(int type)
+bool Enemy::init()
 {
 	if (!Node::init())
 	{
 		return 0;
 	}
-	scheduleUpdate();
-	m_type = type;
 
-	switch (m_type)
-	{
-	case 0:
-		m_body = Sprite::create("image407.png");
-		break;
-	case 1:
-		m_body = Sprite::create("image414.png");
-		break;
-	case 2:
-		m_body = Sprite::create("image419.png");
-		break;
-	default:
-		break;
-	}
+	this->loadDeadSource();
 
 	return 1;
 }
 
-void Enemy::update(float dt)
+void Enemy::loadDeadSource()
 {
-	switch (m_type)
+	SpriteFrameCache::getInstance()->addSpriteFramesWithFile("enemy1/EnemyDead.png");
+	for (int i = 0; i < 11; ++i)
 	{
-	case 0:
-		break;
-	case 1:
-		break;
-	case 2:
-		break;
-	default:
-		break;
+		auto fileName = StringUtils::format("image%d.png", 620 + i * 2);
+		vDead1.pushBack(SpriteFrameCache::getInstance()->getSpriteFrameByName("fileName"));
 	}
+	AnimationCache::getInstance()->addAnimation(Animation::createWithSpriteFrames(vDead1, 0.1),"dead1");
+
+	for (int i = 0; i < 10; ++i)
+	{
+		auto fileName = StringUtils::format("image%d.png", 658 + i * 2);
+		vDead2.pushBack(SpriteFrameCache::getInstance()->getSpriteFrameByName("fileName"));
+	}
+	AnimationCache::getInstance()->addAnimation(Animation::createWithSpriteFrames(vDead2, 0.1), "dead2");
+
+	for (int i = 0; i < 7; ++i)
+	{
+		auto fileName = StringUtils::format("image%d.png", 643 + i * 2);
+		vDead3.pushBack(SpriteFrameCache::getInstance()->getSpriteFrameByName("fileName"));
+	}
+	AnimationCache::getInstance()->addAnimation(Animation::createWithSpriteFrames(vDead3, 0.1), "dead3");
 }

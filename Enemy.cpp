@@ -28,25 +28,34 @@ bool Enemy::init()
 
 void Enemy::loadDeadSource()
 {
-	SpriteFrameCache::getInstance()->addSpriteFramesWithFile("enemy1/EnemyDead.png");
-	for (int i = 0; i < 11; ++i)
+	if (AnimationCache::getInstance()->getAnimation("dead1") == nullptr)
 	{
-		auto fileName = StringUtils::format("image%d.png", 620 + i * 2);
-		vDead1.pushBack(SpriteFrameCache::getInstance()->getSpriteFrameByName("fileName"));
+		SpriteFrameCache::getInstance()->addSpriteFramesWithFile("enemy1/EnemyDead.plist");
+		for (int i = 0; i < 11; ++i)
+		{
+			auto fileName = StringUtils::format("image%d.png", 620 + i * 2);
+			vDead1.pushBack(SpriteFrameCache::getInstance()->getSpriteFrameByName(fileName));
+		}
+		AnimationCache::getInstance()->addAnimation(Animation::createWithSpriteFrames(vDead1, 0.1), "dead1");
 	}
-	AnimationCache::getInstance()->addAnimation(Animation::createWithSpriteFrames(vDead1, 0.1),"dead1");
 
-	for (int i = 0; i < 10; ++i)
+	if (AnimationCache::getInstance()->getAnimation("dead2") == nullptr)
 	{
-		auto fileName = StringUtils::format("image%d.png", 658 + i * 2);
-		vDead2.pushBack(SpriteFrameCache::getInstance()->getSpriteFrameByName("fileName"));
+		for (int i = 0; i < 10; ++i)
+		{
+			auto fileName = StringUtils::format("image%d.png", 658 + i * 2);
+			vDead2.pushBack(SpriteFrameCache::getInstance()->getSpriteFrameByName(fileName));
+		}
+		AnimationCache::getInstance()->addAnimation(Animation::createWithSpriteFrames(vDead2, 0.1), "dead2");
 	}
-	AnimationCache::getInstance()->addAnimation(Animation::createWithSpriteFrames(vDead2, 0.1), "dead2");
 
-	for (int i = 0; i < 7; ++i)
+	if (AnimationCache::getInstance()->getAnimation("dead3") == nullptr)
 	{
-		auto fileName = StringUtils::format("image%d.png", 643 + i * 2);
-		vDead3.pushBack(SpriteFrameCache::getInstance()->getSpriteFrameByName("fileName"));
+		for (int i = 0; i < 7; ++i)
+		{
+			auto fileName = StringUtils::format("image%d.png", 643 + i * 2);
+			vDead3.pushBack(SpriteFrameCache::getInstance()->getSpriteFrameByName(fileName));
+		}
+		AnimationCache::getInstance()->addAnimation(Animation::createWithSpriteFrames(vDead3, 0.1), "dead3");
 	}
-	AnimationCache::getInstance()->addAnimation(Animation::createWithSpriteFrames(vDead3, 0.1), "dead3");
 }

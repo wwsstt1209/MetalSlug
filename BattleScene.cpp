@@ -15,6 +15,7 @@ bool BattleScene::init()
 		return 0;
 	}
 
+	scheduleUpdate();
 	auto visibleSize = Director::getInstance()->getVisibleSize();
 	Vec2 origin = Director::getInstance()->getVisibleOrigin();
 	Director::getInstance()->setContentScaleFactor(1);
@@ -38,14 +39,14 @@ bool BattleScene::init()
 
 	auto myHero = Hero::create();				//´´½¨Ó¢ÐÛ
 	myHero->setPosition(visibleSize / 5);
-	this->addChild(myHero);
+	this->addChild(myHero, 2);
 	myHero->setScaleX(-1);
 	myHero->setName("hero");
 	BattleManager::getInstance()->m_hero = myHero;
 
-	auto enemy1 = EnemyNoGunCommon::create();
-	this->addChild(enemy1);
-	enemy1->setPosition(Vec2(400, 15) + visibleSize / 5);
+	auto truck = Truck::create();
+	truck->setPosition(Vec2(100, -30) + visibleSize / 2);
+	this->addChild(truck, 1);
 
 	auto lis = EventListenerKeyboard::create();						//¼üÅÌ¼àÌýÆ÷
 	lis->onKeyPressed = CC_CALLBACK_2(BattleScene::pressKeyCallback, this);
@@ -59,7 +60,15 @@ void BattleScene::update(float dt)
 {
 	//Color3B transitColor = { 255, 255, 255 };
 	//Director::getInstance()->replaceScene(CCTransitionFade::create(4.0f, SceneManager::getInstance()->getDeadScene(), transitColor));
-	auto hero = (Hero*)getChildByName("hero");
+	auto hero = BattleManager::getInstance()->m_hero;
+
+	if (BattleManager::getInstance()->m_inBattleNum == 0)
+	{
+		if (hero->getPositionX() < 0)
+			hero->setPositionX(0);
+		if (hero->getPositionX() > Director::getInstance()->getVisibleSize().width)
+			hero->setPositionX(Director::getInstance()->getVisibleSize().width);
+	}
 }
 
 void BattleScene::pressKeyCallback(EventKeyboard::KeyCode code, Event* evt)

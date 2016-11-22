@@ -40,7 +40,6 @@ void Launcher::shoot(int toward)
 		b->setPosition(posLauncherInWorld);
 		b->initData(1, 10, toward);
 		BattleManager::getInstance()->battleScene->addChild(b);
-		BattleManager::getInstance()->vBullet.pushBack(b);
 	} 
 		break;
 	case 1:    //»ú¹ØÇ¹
@@ -53,7 +52,6 @@ void Launcher::shoot(int toward)
 				b->setPosition(posLauncherInWorld + Vec2(0, 2));
 			b->initData(1, 10, toward);
 			BattleManager::getInstance()->battleScene->addChild(b);
-			BattleManager::getInstance()->vBullet.pushBack(b);
 		});
 		auto createBullet2 = CallFunc::create([this, posLauncherInWorld, toward]()->void{
 			auto b = Bullet::create();
@@ -63,7 +61,6 @@ void Launcher::shoot(int toward)
 				b->setPosition(posLauncherInWorld + Vec2(0, -2));
 			b->initData(1, 10, toward);
 			BattleManager::getInstance()->battleScene->addChild(b);
-			BattleManager::getInstance()->vBullet.pushBack(b);
 		});
 		auto createBullet3 = CallFunc::create([this, posLauncherInWorld, toward]()->void{
 			auto b = Bullet::create();
@@ -73,7 +70,6 @@ void Launcher::shoot(int toward)
 				b->setPosition(posLauncherInWorld + Vec2(0, 2));
 			b->initData(1, 10, toward);
 			BattleManager::getInstance()->battleScene->addChild(b);
-			BattleManager::getInstance()->vBullet.pushBack(b);
 		});
 		this->runAction(Sequence::create(createBullet1, DelayTime::create(0.1), createBullet2, DelayTime::create(0.1), createBullet3, nullptr));
 	}
@@ -83,4 +79,9 @@ void Launcher::shoot(int toward)
 	default:
 		break;
 	}
+}
+
+void Launcher::showShootEffect(int toward)
+{
+
 }

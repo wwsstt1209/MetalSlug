@@ -10,6 +10,8 @@ public:
 	bool init();
 	void initData(int gunType);
 	void shoot(int toward);
+	void showShootEffect(int toward);
 private:
 	int m_level;   //0手枪  1机关枪  2导弹
+	Sprite* shootEffect;
 };

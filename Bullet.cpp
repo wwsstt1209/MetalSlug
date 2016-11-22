@@ -24,6 +24,7 @@ bool Bullet::init()
 	m_bulletSprite = Sprite::create();
 	m_bulletSprite->setPosition(Vec2::ZERO);
 	this->addChild(m_bulletSprite);
+	BattleManager::getInstance()->vBullet.pushBack(this);
 
 	return 1;
 }

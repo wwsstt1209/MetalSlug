@@ -11,6 +11,7 @@ public:
 	Vector<Node*>vEnemy;
 	Vector<Node*>vBomb;
 	Layer* battleScene;
+	int m_inBattleNum = 0;
 private:
 	BattleManager() {};
 	~BattleManager() {};

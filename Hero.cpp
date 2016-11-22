@@ -177,7 +177,7 @@ void Hero::hit()   //可以加上枪支开火动画效果
 		if (HeroInfo::getInstance()->m_towardY == UP)
 		{
 			toward = 0;
-			m_launcher->setPosition(Vec2(-15, 30));
+			m_launcher->setPosition(Vec2(0, 40));
 		}
 		if (HeroInfo::getInstance()->m_towardY == DOWN)
 		{

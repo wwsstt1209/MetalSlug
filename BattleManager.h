@@ -12,6 +12,7 @@ public:
 	Vector<Node*>vBomb;
 	Layer* battleScene;
 	int m_inBattleNum = 0;
+	Sprite* m_Cannon = nullptr;
 private:
 	BattleManager() {};
 	~BattleManager() {};

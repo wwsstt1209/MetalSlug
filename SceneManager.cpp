@@ -27,14 +27,20 @@ Scene* SceneManager::getGuideScene()
 	return guideScene;
 }
 
-Scene* SceneManager::getBattleScene()
+Scene* SceneManager::getBattleScene0()
 {
-	auto battleScene = BattleScene::createScene();
-	return battleScene;
+	auto battleScene0 = BattleScene0::createScene();
+	return battleScene0;
 }
 
 Scene* SceneManager::getDeadScene()
 {
 	auto deadScene = DeadScene::createScene();
 	return deadScene;
+}
+
+Scene* SceneManager::getBattleScene1()
+{
+	auto battleScene1 = BattleScene1::createScene();
+	return battleScene1;
 }

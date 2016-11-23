@@ -32,42 +32,43 @@ void Launcher::initData(int gunType)
 void Launcher::shoot(int toward)
 {
 	auto posLauncherInWorld = convertToWorldSpace(this->getPosition());
+	auto posLauncherInScene = BattleManager::getInstance()->battleScene->convertToNodeSpace(posLauncherInWorld);
 	switch (m_level)
 	{
 	case 0:    //ÊÖÇ¹
 	{
 		auto b = Bullet::create();
-		b->setPosition(posLauncherInWorld);
+		b->setPosition(posLauncherInScene);
 		b->initData(1, 10, toward);
 		BattleManager::getInstance()->battleScene->addChild(b);
 	} 
 		break;
 	case 1:    //»ú¹ØÇ¹
 	{
-		auto createBullet1 = CallFunc::create([this, posLauncherInWorld, toward]()->void{
+		auto createBullet1 = CallFunc::create([this, posLauncherInScene, toward]()->void{
 			auto b = Bullet::create();
 			if (HeroInfo::getInstance()->m_towardY == UP)
-				b->setPosition(posLauncherInWorld + Vec2(2, 0));
+				b->setPosition(posLauncherInScene + Vec2(2, 0));
 			else
-				b->setPosition(posLauncherInWorld + Vec2(0, 2));
+				b->setPosition(posLauncherInScene + Vec2(0, 2));
 			b->initData(1, 10, toward);
 			BattleManager::getInstance()->battleScene->addChild(b);
 		});
-		auto createBullet2 = CallFunc::create([this, posLauncherInWorld, toward]()->void{
+		auto createBullet2 = CallFunc::create([this, posLauncherInScene, toward]()->void{
 			auto b = Bullet::create();
 			if (HeroInfo::getInstance()->m_towardY == UP)
-				b->setPosition(posLauncherInWorld + Vec2(-2, 0));
+				b->setPosition(posLauncherInScene + Vec2(-2, 0));
 			else
-				b->setPosition(posLauncherInWorld + Vec2(0, -2));
+				b->setPosition(posLauncherInScene + Vec2(0, -2));
 			b->initData(1, 10, toward);
 			BattleManager::getInstance()->battleScene->addChild(b);
 		});
-		auto createBullet3 = CallFunc::create([this, posLauncherInWorld, toward]()->void{
+		auto createBullet3 = CallFunc::create([this, posLauncherInScene, toward]()->void{
 			auto b = Bullet::create();
 			if (HeroInfo::getInstance()->m_towardY == UP)
-				b->setPosition(posLauncherInWorld + Vec2(2, 0));
+				b->setPosition(posLauncherInScene + Vec2(2, 0));
 			else
-				b->setPosition(posLauncherInWorld + Vec2(0, 2));
+				b->setPosition(posLauncherInScene + Vec2(0, 2));
 			b->initData(1, 10, toward);
 			BattleManager::getInstance()->battleScene->addChild(b);
 		});

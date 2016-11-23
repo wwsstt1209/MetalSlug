@@ -23,9 +23,31 @@ bool Truck::init()
 
 	ArmatureDataManager::getInstance()->addArmatureFileInfo("Animations/TruckAnimation/TruckAnimation.ExportJson");
 	m_armature = Armature::create("TruckAnimation");
-	m_armature->getAnimation()->play("Animation1");
+	m_armature->getAnimation()->play("TruckStop");
 	m_armature->setPosition(this->getContentSize() / 2);
 	this->addChild(m_armature);
+
+	auto cannon0 = Sprite::create("onCanon/image2012.png");
+	cannon0->setPosition(Vec2(20, 110));
+	this->addChild(cannon0);
+	auto cannon1 = Sprite::create("onCanon/image2014.png");
+	cannon1->setPosition(Vec2(20, 150));
+	this->addChild(cannon1);
+
+	if (BattleManager::getInstance()->m_inBattleNum == 0)
+	{
+		auto moveCallback = CallFunc::create([this]()->void{
+			m_armature->getAnimation()->play("TruckMoving");
+			this->runAction(MoveBy::create(3, Vec2(500, 0)));
+			BattleManager::getInstance()->m_hero->runAction(MoveBy::create(3, Vec2(500, 0)));
+		});
+		this->runAction(Sequence::create(DelayTime::create(2), moveCallback, nullptr));
+	}
+
+	if (BattleManager::getInstance()->m_inBattleNum == 1)
+	{
+		m_armature->getAnimation()->play("TruckMoving");
+	}
 
 	return 1;
 }

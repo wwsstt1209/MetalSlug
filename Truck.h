@@ -1,5 +1,6 @@
 #pragma once
 #include "cocos2d.h"
+#include "BattleManager.h"
 #include "cocostudio\CocoStudio.h"
 USING_NS_CC;
 using namespace cocostudio;

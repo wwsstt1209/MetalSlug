@@ -39,5 +39,5 @@ void GuideScene::update(float dt)
 
 void GuideScene::startCallback(Ref*)
 {
-	Director::getInstance()->replaceScene(CCTransitionCrossFade::create(1, SceneManager::getInstance()->getBattleScene()));
+	Director::getInstance()->replaceScene(CCTransitionCrossFade::create(1, SceneManager::getInstance()->getBattleScene0()));
 }

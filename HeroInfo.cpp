@@ -26,6 +26,4 @@ HeroInfo::HeroInfo()
 	m_isHitting = 0;
 	m_isThrowing = 0;
 	m_potHit = 0;
-	m_jumpStartY = 0;
-	m_isOnCannon = 0;
 }

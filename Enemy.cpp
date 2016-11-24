@@ -20,42 +20,35 @@ bool Enemy::init()
 	{
 		return 0;
 	}
+	schedule(CC_CALLBACK_1(Enemy::shootUpdate, this), 5, "enemyShoot");
+	scheduleUpdate();
 
-	this->loadDeadSource();
+	m_body = Sprite::create("airEnemy/image2885.png");
+	this->addChild(m_body);
+
+	BattleManager::getInstance()->vEnemy.pushBack(this);
 
 	return 1;
 }
 
-void Enemy::loadDeadSource()
+void Enemy::update(float dt)
 {
-	if (AnimationCache::getInstance()->getAnimation("dead1") == nullptr)
+	//移动  
+	this->setPosition(this->getPosition() - Vec2(0.6, 0.1));
+	//改变方向  
+	//被击中  
+	//移出地图边缘
+	if (this->getPositionX() <= -10)
 	{
-		SpriteFrameCache::getInstance()->addSpriteFramesWithFile("enemy1/EnemyDead.plist");
-		for (int i = 0; i < 11; ++i)
-		{
-			auto fileName = StringUtils::format("image%d.png", 620 + i * 2);
-			vDead1.pushBack(SpriteFrameCache::getInstance()->getSpriteFrameByName(fileName));
-		}
-		AnimationCache::getInstance()->addAnimation(Animation::createWithSpriteFrames(vDead1, 0.1), "dead1");
+		BattleManager::getInstance()->vEnemy.eraseObject(this);
+		this->removeFromParent();
 	}
+}
 
-	if (AnimationCache::getInstance()->getAnimation("dead2") == nullptr)
-	{
-		for (int i = 0; i < 10; ++i)
-		{
-			auto fileName = StringUtils::format("image%d.png", 658 + i * 2);
-			vDead2.pushBack(SpriteFrameCache::getInstance()->getSpriteFrameByName(fileName));
-		}
-		AnimationCache::getInstance()->addAnimation(Animation::createWithSpriteFrames(vDead2, 0.1), "dead2");
-	}
-
-	if (AnimationCache::getInstance()->getAnimation("dead3") == nullptr)
-	{
-		for (int i = 0; i < 7; ++i)
-		{
-			auto fileName = StringUtils::format("image%d.png", 643 + i * 2);
-			vDead3.pushBack(SpriteFrameCache::getInstance()->getSpriteFrameByName(fileName));
-		}
-		AnimationCache::getInstance()->addAnimation(Animation::createWithSpriteFrames(vDead3, 0.1), "dead3");
-	}
+void Enemy::shootUpdate(float dt)
+{
+	auto b = Bullet::create();
+	BattleManager::getInstance()->battleScene->addChild(b, 1);
+	b->setPosition(Vec2(-50, -75) + this->getPosition());
+	b->initEnemyBullet(2);
 }

@@ -20,14 +20,6 @@ bool BattleScene0::init()
 	Vec2 origin = Director::getInstance()->getVisibleOrigin();
 	Director::getInstance()->setContentScaleFactor(1);
 	BattleManager::getInstance()->battleScene = this;
-
-	auto bombAnimation = Animation::create();							//º”‘ÿ ÷¿◊±¨’®∂Øª≠
-	for (int i = 0; i < 15; ++i)
-	{
-		auto fileName = StringUtils::format("image%d.png", i * 2 + 20);
-		bombAnimation->addSpriteFrameWithFile(fileName);
-	}
-	AnimationCache::getInstance()->addAnimation(bombAnimation, "bomb");
 	
 	auto backGroud1 = Sprite::create("scene1/image242.jpg");			//±≥æ∞Õº
 	backGroud1->setPosition(visibleSize / 2);

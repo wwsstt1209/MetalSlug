@@ -22,6 +22,8 @@ bool Bomb::init()
 	}
 	scheduleUpdate();
 
+	BattleManager::getInstance()->vBomb.pushBack(this);
+
 	m_bomb = Sprite::create("image377.png");
 	if (HeroInfo::getInstance()->m_towardX == RIGHT)
 		m_bomb->setRotation(-180);
@@ -34,13 +36,32 @@ void Bomb::setBombData(float speedUp)
 {
 	m_speedUp = speedUp;
 	isFlying = 1;
+	m_right = HeroInfo::getInstance()->m_towardX;
+	m_startPos = this->getPosition();
 }
 
 void Bomb::update(float dt)
 {
+	float height = 0;
+	if (m_right)
+	{
+		if (m_startPos.x + 90 > 370 && m_startPos.x + 90 < 440)
+			height = 105;
+		else if (m_startPos.x + 90 > 440)
+			height = 0;
+		else
+			height = 160;
+	}
+	else
+	{
+		if (m_startPos.x - 90 < 110)
+			height = 0;
+		else
+			height = 160;
+	}
 	if (isFlying)
 	{
-		if (HeroInfo::getInstance()->m_towardX == RIGHT)
+		if (m_right)
 		{
 			this->setPosition(Vec2(this->getPositionX() + 3, this->getPositionY() + m_speedUp));
 			m_bomb->setRotation(m_bomb->getRotation() + 180 * dt * 2);
@@ -60,12 +81,15 @@ void Bomb::update(float dt)
 	//		return;
 	//	}
 	//}
-	if (this->getPositionY() <= Director::getInstance()->getVisibleSize().height / 2)
+	if (this->getPositionY() <= height)
 	{
 		if (isFlying)
 		{
 			auto ani = AnimationCache::getInstance()->getAnimation("bomb");
 			ani->setDelayPerUnit(0.05);
+			auto setPosCallback = CallFunc::create([this]()->void {
+				this->setPositionY(this->getPositionY() + 70);
+			});
 			auto releaseCallback = CallFunc::create([this]()->void{
 				this->removeFromParent();
 			});
@@ -77,7 +101,7 @@ void Bomb::update(float dt)
 				jumpSec = JumpBy::create(0.2, Vec2(10, 0), 5, 1);
 			else
 				jumpSec = JumpBy::create(0.2, Vec2(-10, 0), 5, 1);
-			m_bomb->runAction(Sequence::create(jumpSec, DelayTime::create(0.1), flipCallback, Animate::create(ani), releaseCallback, nullptr));
+			m_bomb->runAction(Sequence::create(jumpSec, DelayTime::create(0.1), flipCallback, setPosCallback, Animate::create(ani), releaseCallback, nullptr));
 		}
 		isFlying = 0;
 	}

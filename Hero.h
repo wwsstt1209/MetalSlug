@@ -21,4 +21,5 @@ public:
 private:
 	Armature* m_armature = nullptr;
 	Launcher* m_launcher = nullptr;
+	Sprite* m_sprite = nullptr;
 };

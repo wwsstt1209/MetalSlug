@@ -29,6 +29,10 @@ bool Hero::init()
 	m_armature->getAnimation()->setMovementEventCallFunc(CC_CALLBACK_3(Hero::armatureCallback, this));
 	this->addChild(m_armature);
 
+	m_sprite = Sprite::create("onCanon/image2040.png");
+	this->addChild(m_sprite);
+	m_sprite->setVisible(0);
+
 	m_launcher = Launcher::create();
 	m_launcher->setPosition(Vec2(0,10));
 	this->addChild(m_launcher);
@@ -61,96 +65,110 @@ void Hero::update(float dt)
 {
 	auto heroInfo = HeroInfo::getInstance();
 	auto movementID = m_armature->getAnimation()->getCurrentMovementID();
-	if (!heroInfo->m_isOnCannon)
+	switch (HeroInfo::getInstance()->m_act)
 	{
-		switch (HeroInfo::getInstance()->m_act)
+	case STAND:
+	{
+		if (!heroInfo->m_isHitting && !heroInfo->m_isThrowing && BattleManager::getInstance()->m_inBattleNum == 1)
 		{
-		case STAND:
-		{
-			if (!heroInfo->m_isHitting && !heroInfo->m_isThrowing && BattleManager::getInstance()->m_inBattleNum == 1)
+			if (heroInfo->m_gun == SMALL)
 			{
-				if (heroInfo->m_gun == SMALL)
-				{
-					if (movementID != "stand_stop_handgun_LR" && heroInfo->m_towardY == NORMAL)
-						m_armature->getAnimation()->play("stand_stop_handgun_LR");
-					else if (movementID != "stand_stop_handgun_UP" && heroInfo->m_towardY == UP)
-						m_armature->getAnimation()->play("stand_stop_handgun_UP");
-					else if (movementID != "squat_stop_handgun_LR" && heroInfo->m_towardY == DOWN)
-						m_armature->getAnimation()->play("squat_stop_handgun_LR");
-				}
-				else
-				{
-					//如果是机关枪
-					if (movementID != "stand_stop_rushgun_LR" && heroInfo->m_towardY == NORMAL)
-						m_armature->getAnimation()->play("stand_stop_rushgun_LR");
-					else if (movementID != "stand_stop_rushgun_UP" && heroInfo->m_towardY == UP)
-						m_armature->getAnimation()->play("stand_stop_rushgun_UP");
-					else if (movementID != "squat_stop_rushgun_LR" && heroInfo->m_towardY == DOWN)
-						m_armature->getAnimation()->play("squat_stop_rushgun_LR");
-				}
+				if (movementID != "stand_stop_handgun_LR" && heroInfo->m_towardY == NORMAL)
+					m_armature->getAnimation()->play("stand_stop_handgun_LR");
+				else if (movementID != "stand_stop_handgun_UP" && heroInfo->m_towardY == UP)
+					m_armature->getAnimation()->play("stand_stop_handgun_UP");
+				else if (movementID != "squat_stop_handgun_LR" && heroInfo->m_towardY == DOWN)
+					m_armature->getAnimation()->play("squat_stop_handgun_LR");
 			}
-			break;
-		}
-		case MOVE:
-		{
-			if (heroInfo->m_towardX_state == 0)
-				heroInfo->m_act = STAND;
-			if (heroInfo->m_act != JUMP && !heroInfo->m_isHitting && !heroInfo->m_isThrowing)
+			else
 			{
-				if (heroInfo->m_gun == SMALL)
-				{
-					if (movementID != "stand_move_handgun_LR" && heroInfo->m_towardY == NORMAL)
-						m_armature->getAnimation()->play("stand_move_handgun_LR");
-					else if (movementID != "stand_move_handgun_UP" && heroInfo->m_towardY == UP)
-						m_armature->getAnimation()->play("stand_move_handgun_UP");
-					else if (movementID != "squat_move_handgun_LR" && heroInfo->m_towardY == DOWN)
-						m_armature->getAnimation()->play("squat_move_handgun_LR");
-				}
-				else
-				{
-					//如果是机关枪
-					if (movementID != "stand_move_rushgun_LR" && heroInfo->m_towardY == NORMAL)
-						m_armature->getAnimation()->play("stand_move_rushgun_LR");
-					else if (movementID != "stand_move_rushgun_UP" && heroInfo->m_towardY == UP)
-						m_armature->getAnimation()->play("stand_move_rushgun_UP");
-					else if (movementID != "squat_move_rushgun_LR" && heroInfo->m_towardY == DOWN)
-						m_armature->getAnimation()->play("squat_move_rushgun_LR");
-				}
+				//如果是机关枪
+				if (movementID != "stand_stop_rushgun_LR" && heroInfo->m_towardY == NORMAL)
+					m_armature->getAnimation()->play("stand_stop_rushgun_LR");
+				else if (movementID != "stand_stop_rushgun_UP" && heroInfo->m_towardY == UP)
+					m_armature->getAnimation()->play("stand_stop_rushgun_UP");
+				else if (movementID != "squat_stop_rushgun_LR" && heroInfo->m_towardY == DOWN)
+					m_armature->getAnimation()->play("squat_stop_rushgun_LR");
 			}
-			break;
-		}
-		case JUMP:
-		{
-			if (!heroInfo->m_isHitting && !heroInfo->m_isThrowing)
-			{
-				if (heroInfo->m_gun == SMALL)
-				{
-					if (movementID != "jump_normal_handgun_LR" && heroInfo->m_isHitting == 0 && heroInfo->m_isThrowing == 0)
-						m_armature->getAnimation()->play("jump_normal_handgun_LR");
-				}
-				else
-				{
-					//如果是机关枪
-					if (movementID != "jump_normal_rushgun_LR" && heroInfo->m_isHitting == 0 && heroInfo->m_isThrowing == 0)
-						m_armature->getAnimation()->play("jump_normal_rushgun_LR");
-				}
-			}
-			jump();
 		}
 		break;
-		default:
-			break;
-		}
-		if (heroInfo->m_towardX_state == 2)
+	}
+	case MOVE:
+	{
+		if (heroInfo->m_towardX_state == 0)
+			heroInfo->m_act = STAND;
+		if (heroInfo->m_act != JUMP && !heroInfo->m_isHitting && !heroInfo->m_isThrowing)
 		{
-			this->setPositionX(this->getPositionX() - heroInfo->m_speed);
-			this->setScaleX(1);
+			if (heroInfo->m_gun == SMALL)
+			{
+				if (movementID != "stand_move_handgun_LR" && heroInfo->m_towardY == NORMAL)
+					m_armature->getAnimation()->play("stand_move_handgun_LR");
+				else if (movementID != "stand_move_handgun_UP" && heroInfo->m_towardY == UP)
+					m_armature->getAnimation()->play("stand_move_handgun_UP");
+				else if (movementID != "squat_move_handgun_LR" && heroInfo->m_towardY == DOWN)
+					m_armature->getAnimation()->play("squat_move_handgun_LR");
+			}
+			else
+			{
+				//如果是机关枪
+				if (movementID != "stand_move_rushgun_LR" && heroInfo->m_towardY == NORMAL)
+					m_armature->getAnimation()->play("stand_move_rushgun_LR");
+				else if (movementID != "stand_move_rushgun_UP" && heroInfo->m_towardY == UP)
+					m_armature->getAnimation()->play("stand_move_rushgun_UP");
+				else if (movementID != "squat_move_rushgun_LR" && heroInfo->m_towardY == DOWN)
+					m_armature->getAnimation()->play("squat_move_rushgun_LR");
+			}
 		}
-		if (heroInfo->m_towardX_state == 1)
+		break;
+	}
+	case JUMP:
+	{
+		m_armature->setVisible(1);
+		m_sprite->setVisible(0);
+		if (!heroInfo->m_isHitting && !heroInfo->m_isThrowing)
 		{
-			this->setPositionX(this->getPositionX() + heroInfo->m_speed);
-			this->setScaleX(-1);
+			if (heroInfo->m_gun == SMALL)
+			{
+				if (movementID != "jump_normal_handgun_LR" && heroInfo->m_isHitting == 0 && heroInfo->m_isThrowing == 0)
+					m_armature->getAnimation()->play("jump_normal_handgun_LR");
+			}
+			else
+			{
+				//如果是机关枪
+				if (movementID != "jump_normal_rushgun_LR" && heroInfo->m_isHitting == 0 && heroInfo->m_isThrowing == 0)
+					m_armature->getAnimation()->play("jump_normal_rushgun_LR");
+			}
 		}
+		jump();
+	}
+	break;
+	case CANNON:
+	{
+		m_armature->setVisible(0);
+		m_sprite->setVisible(1);
+
+	}
+		break;
+	default:
+		break;
+	}
+
+	if (heroInfo->m_towardX_state == 2)
+	{
+		this->setPositionX(this->getPositionX() - heroInfo->m_speed);
+		this->setScaleX(1);
+	}
+	if (heroInfo->m_towardX_state == 1)
+	{
+		this->setPositionX(this->getPositionX() + heroInfo->m_speed);
+		this->setScaleX(-1);
+	}
+
+	Rect wndRect = { 0,60,Director::getInstance()->getVisibleSize().width,Director::getInstance()->getVisibleSize().height };
+	if (!wndRect.containsPoint(this->getPosition()))
+	{
+		this->stopAllActions();
+		this->removeFromParent();
 	}
 }
 
@@ -160,15 +178,31 @@ void Hero::jump()
 	this->setPositionY(this->getPositionY() + heroInfo->m_speedUp);
 	--heroInfo->m_speedUp;
 
-	//如果人在炮上&&炮存在
+	//如果人在炮上 && 炮存在 && m_speedUp<0 
 	//m_cannon = 1;
 	//换图
 	//可以用鼠标监听
 
-	if (this->getPositionY() <= heroInfo->m_jumpStartY)  //调整下落位置
+	//if (this->getPositionY() <= heroInfo->m_jumpStartY)  //调整下落位置
+	if(BattleManager::getInstance()->m_inBattleNum == 1)
 	{
-		heroInfo->m_speedUp = 0;
-		heroInfo->m_act = MOVE;
+		float height = 0;
+		if (this->getPositionX() >= 110 && this->getPositionX() < 370)
+			height = 170;
+		else if (this->getPositionX() >= 370 && this->getPositionX() <= 440)
+			height = 115;
+		else
+			height = 0;
+		if (this->getPositionY() <= height)
+		{
+			this->setPositionY(height);
+			heroInfo->m_speedUp = 0;
+			heroInfo->m_act = MOVE;
+		}
+	}
+	if (BattleManager::getInstance()->m_inBattleNum == 2)
+	{
+
 	}
 }
 
@@ -445,10 +479,9 @@ void Hero::throwBomb()
 	//创建手雷逻辑
 	auto bomb = Bomb::create();
 	auto posInLayer = BattleManager::getInstance()->battleScene->convertToWorldSpace(this->getPosition());
-	bomb->setPosition(posInLayer + Vec2(20,35));
-	bomb->setBombData(10);
+	bomb->setPosition(posInLayer + Vec2(20,55));
+	bomb->setBombData(15);
 	BattleManager::getInstance()->battleScene->addChild(bomb);
-	BattleManager::getInstance()->vBomb.pushBack(bomb);
 }
 
 void Hero::armatureCallback(Armature *armature, MovementEventType movementType, const std::string& movementID)

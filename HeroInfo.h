@@ -1,10 +1,11 @@
 #pragma once
 
-enum HeroAction{ STAND, MOVE, JUMP };
+enum HeroAction{ STAND, MOVE, JUMP, CANNON };
 
 enum Gun{ SMALL, MEDIUM, GIANT };
 
 enum TowardX{ LEFT, RIGHT };
+
 enum TowardY { NORMAL, UP, DOWN };
 
 class HeroInfo
@@ -24,8 +25,6 @@ public:
 	bool m_isHitting;
 	bool m_isThrowing;
 	bool m_potHit;
-	float m_jumpStartY;
-	bool m_isOnCannon;
 private:
 	HeroInfo();
 	~HeroInfo() {};

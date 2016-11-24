@@ -7,7 +7,7 @@ Scene* BattleScene1::createScene()
 	scene->addChild(layer);
 
 	auto heroInfoUI = Sprite::create("ui/image1001.png");				//英雄信息栏
-	heroInfoUI->setPosition(Vec2(Director::getInstance()->getVisibleSize().width / 2, heroInfoUI->getContentSize().height / 2));
+	heroInfoUI->setPosition(Vec2(Director::getInstance()->getVisibleSize().width / 2, heroInfoUI->getContentSize().height / 2 - 5));
 	scene->addChild(heroInfoUI);
 
 	return scene;
@@ -19,34 +19,41 @@ bool BattleScene1::init()
 	{
 		return 0;
 	}
-
-	scheduleUpdate();
 	auto visibleSize = Director::getInstance()->getVisibleSize();
 	Vec2 origin = Director::getInstance()->getVisibleOrigin();
 	Director::getInstance()->setContentScaleFactor(1);
 	BattleManager::getInstance()->battleScene = this;
 	BattleManager::getInstance()->m_inBattleNum = 1;
+	//loadEnemyDeadResource();
+
+	auto bombAnimation = Animation::create();							//加载手雷爆炸动画
+	for (int i = 0; i < 15; ++i)
+	{
+		auto fileName = StringUtils::format("image%d.png", i * 2 + 20);
+		bombAnimation->addSpriteFrameWithFile(fileName);
+	}
+	AnimationCache::getInstance()->addAnimation(bombAnimation, "bomb");
 
 	auto backGroud1 = Sprite::create("scene1/image246.jpg");			//背景图
 	backGroud1->setPosition(visibleSize / 2);
 	backGroud1->setName("bg1");
-	this->addChild(backGroud1);
+	this->addChild(backGroud1,-1);
 
 	auto backGround2 = Sprite::create("scene1/image246.jpg");
 	backGround2->setPosition(backGroud1->getPosition() + Vec2(backGroud1->getContentSize().width, 0));
 	backGround2->setName("bg2");
-	this->addChild(backGround2);
+	this->addChild(backGround2,-1);
 
 	auto myHero = Hero::create();				//创建英雄
 	myHero->setPosition(Vec2(-120, -30) + visibleSize / 2);
-	this->addChild(myHero, 2);
+	this->addChild(myHero, 5);
 	myHero->setScaleX(-1);
 	myHero->setName("hero");
 	BattleManager::getInstance()->m_hero = myHero;
 
 	auto truck = Truck::create();				//卡车
 	truck->setPosition(Vec2(-50, -120) + visibleSize / 2);
-	this->addChild(truck, 1);
+	this->addChild(truck, 0);
 
 	this->setPositionY(this->getPositionY() - 65);
 
@@ -55,27 +62,52 @@ bool BattleScene1::init()
 	lis->onKeyReleased = CC_CALLBACK_2(BattleScene1::releaseKeyCallback, this);
 	_eventDispatcher->addEventListenerWithSceneGraphPriority(lis, this);
 
+	scheduleUpdate();
+
+	//auto lis2 = EventListenerTouchOneByOne::create();
+	//lis2->onTouchBegan = [](Touch* t, Event* e)->bool {
+	//	CCLOG("%f,%f", t->getLocation().x, t->getLocation().y);
+	//	return 1;
+	//};
+	//_eventDispatcher->addEventListenerWithSceneGraphPriority(lis2, this);
+
 	return 1;
 }
 
-void BattleScene1::update(float dt)
+void BattleScene1::loadEnemyDeadResource()
 {
-	//Color3B transitColor = { 255, 255, 255 };
-	//Director::getInstance()->replaceScene(CCTransitionFade::create(4.0f, SceneManager::getInstance()->getDeadScene(), transitColor));
-	static Node* hero = BattleManager::getInstance()->m_hero;
+	if (AnimationCache::getInstance()->getAnimation("dead1") == nullptr)
 	{
-		static Node* bg1 = this->getChildByName("bg1");
-		static Node* bg2 = this->getChildByName("bg2");
-		bg1->setPositionX(bg1->getPositionX() - 2);
-		bg2->setPositionX(bg2->getPositionX() - 2);
-		if (bg1->getPositionX() <= 0 - bg1->getContentSize().width / 2)
+		SpriteFrameCache::getInstance()->addSpriteFramesWithFile("enemy1/EnemyDead.plist");
+		Vector<SpriteFrame*>vDead;
+		for (int i = 0; i < 11; ++i)
 		{
-			bg1->setPositionX(Director::getInstance()->getVisibleSize().width + bg1->getContentSize().width / 2);
+			auto fileName = StringUtils::format("image%d.png", 620 + i * 2);
+			vDead.pushBack(SpriteFrameCache::getInstance()->getSpriteFrameByName(fileName));
 		}
-		if (bg2->getPositionX() <= 0 - bg2->getContentSize().width / 2)
+		AnimationCache::getInstance()->addAnimation(Animation::createWithSpriteFrames(vDead, 0.1), "dead1");
+	}
+
+	if (AnimationCache::getInstance()->getAnimation("dead2") == nullptr)
+	{
+		Vector<SpriteFrame*>vDead;
+		for (int i = 0; i < 10; ++i)
 		{
-			bg2->setPositionX(Director::getInstance()->getVisibleSize().width + bg2->getContentSize().width / 2);
+			auto fileName = StringUtils::format("image%d.png", 658 + i * 2);
+			vDead.pushBack(SpriteFrameCache::getInstance()->getSpriteFrameByName(fileName));
 		}
+		AnimationCache::getInstance()->addAnimation(Animation::createWithSpriteFrames(vDead, 0.1), "dead2");
+	}
+
+	if (AnimationCache::getInstance()->getAnimation("dead3") == nullptr)
+	{
+		Vector<SpriteFrame*>vDead;
+		for (int i = 0; i < 7; ++i)
+		{
+			auto fileName = StringUtils::format("image%d.png", 643 + i * 2);
+			vDead.pushBack(SpriteFrameCache::getInstance()->getSpriteFrameByName(fileName));
+		}
+		AnimationCache::getInstance()->addAnimation(Animation::createWithSpriteFrames(vDead, 0.1), "dead3");
 	}
 }
 
@@ -116,7 +148,6 @@ void BattleScene1::pressKeyCallback(EventKeyboard::KeyCode code, Event* evt)
 		{
 			heroInfo->m_act = JUMP;
 			heroInfo->m_speedUp = 15;
-			heroInfo->m_jumpStartY = hero->getPositionY();
 		}
 		break;
 	case EventKeyboard::KeyCode::KEY_L:
@@ -155,5 +186,69 @@ void BattleScene1::releaseKeyCallback(EventKeyboard::KeyCode code, Event* evt)
 		break;
 	default:
 		break;
+	}
+}
+
+void BattleScene1::update(float dt)
+{
+	//Color3B transitColor = { 255, 255, 255 };
+	//Director::getInstance()->replaceScene(CCTransitionFade::create(4.0f, SceneManager::getInstance()->getDeadScene(), transitColor));
+	static Node* hero = BattleManager::getInstance()->m_hero;
+	{
+		static Node* bg1 = this->getChildByName("bg1");
+		static Node* bg2 = this->getChildByName("bg2");
+		bg1->setPositionX(bg1->getPositionX() - 2);
+		bg2->setPositionX(bg2->getPositionX() - 2);
+		if (bg1->getPositionX() <= 0 - bg1->getContentSize().width / 2)
+		{
+			bg1->setPositionX(Director::getInstance()->getVisibleSize().width + bg1->getContentSize().width / 2);
+		}
+		if (bg2->getPositionX() <= 0 - bg2->getContentSize().width / 2)
+		{
+			bg2->setPositionX(Director::getInstance()->getVisibleSize().width + bg2->getContentSize().width / 2);
+		}
+	}
+	if (BattleManager::getInstance()->m_airEnemyWave == 2)
+	{
+		//创建发射导弹飞机
+	}
+	if (BattleManager::getInstance()->m_airEnemyWave == 5 || BattleManager::getInstance()->m_airEnemyWave == 7)
+	{
+		//掉落炸弹
+		createNewBombWave();
+	}
+	if (BattleManager::getInstance()->m_airEnemyWave == 8)
+	{
+		//创建一个飞机炸毁卡车并进入P2
+	}
+	if (BattleManager::getInstance()->vEnemy.size() == 0)
+	{
+		schedule(CC_CALLBACK_0(BattleScene1::createNewEnemyWave, this), 3, "createEnemy");
+		++BattleManager::getInstance()->m_airEnemyWave;
+	}
+}
+
+void BattleScene1::createNewEnemyWave()
+{
+	static int wave = 0;
+	auto enemy = Enemy::create();
+	enemy->setPosition(Vec2(60, 80) + Director::getInstance()->getVisibleSize());
+	this->addChild(enemy, 2);
+	++wave;
+	if (wave == 4)
+	{
+		wave = 0;
+		unschedule("createEnemy");
+	}
+}
+
+void BattleScene1::createNewBombWave()
+{
+	auto visibleSize = Director::getInstance()->getVisibleSize();
+	for (int i = 0; i < 5; ++i)
+	{
+		auto bomb = EnemyBomb::create();
+		this->addChild(bomb,1);
+		bomb->setPosition(Vec2(visibleSize.width / 2 - 160 + i * 80, visibleSize.height + 100 + i * 20));
 	}
 }

@@ -20,4 +20,5 @@ public:
 	void createNewEnemyWave();
 	void createNewBombWave();
 private:
+	bool m_startCreateEnemy = 0;
 };

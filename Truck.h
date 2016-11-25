@@ -1,5 +1,6 @@
 #pragma once
 #include "cocos2d.h"
+#include "Cannon.h"
 #include "BattleManager.h"
 #include "cocostudio\CocoStudio.h"
 USING_NS_CC;

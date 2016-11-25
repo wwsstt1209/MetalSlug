@@ -13,8 +13,8 @@ public:
 	Vector<Node*>vEnemyBomb;
 	Layer* battleScene;
 	int m_inBattleNum = 0;
-	Sprite* m_Cannon = nullptr;
-	int m_airEnemyWave = 1;
+	int m_airEnemyWave = 0;
+	Node* m_Cannon = nullptr;
 private:
 	BattleManager() {};
 	~BattleManager() {};

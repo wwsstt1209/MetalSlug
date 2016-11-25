@@ -1,6 +1,6 @@
 #pragma once
 
-enum HeroAction{ STAND, MOVE, JUMP, CANNON };
+enum HeroAction{ STAND, MOVE, JUMP, ONCANNON };
 
 enum Gun{ SMALL, MEDIUM, GIANT };
 

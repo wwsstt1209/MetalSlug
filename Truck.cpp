@@ -27,12 +27,10 @@ bool Truck::init()
 	m_armature->setPosition(this->getContentSize() / 2);
 	this->addChild(m_armature);
 
-	auto cannon0 = Sprite::create("onCanon/image2012.png");
-	cannon0->setPosition(Vec2(20, 110));
-	this->addChild(cannon0);
-	auto cannon1 = Sprite::create("onCanon/image2014.png");
-	cannon1->setPosition(Vec2(20, 150));
-	this->addChild(cannon1);
+	auto cannon = Cannon::create();
+	cannon->setPosition(Vec2(20, 100));
+	this->addChild(cannon);
+	BattleManager::getInstance()->m_Cannon = cannon;
 
 	if (BattleManager::getInstance()->m_inBattleNum == 0)
 	{

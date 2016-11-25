@@ -92,23 +92,31 @@ void Bullet::initData(bool b, float speed, int toward)
 
 void Bullet::initEnemyBullet(float speed)
 {
-	m_ownToPlayer = 0;
-	m_speed = speed;
-	auto targetPos = BattleManager::getInstance()->m_hero->getPosition();
-	auto XY = Vec2(this->getPositionX() - targetPos.x, this->getPositionY() - targetPos.y);
-	auto rateX = XY.x / sqrt((XY.x*XY.x) + (XY.y*XY.y));
-	auto rateY = XY.y / sqrt((XY.x*XY.x) + (XY.y*XY.y));
-	m_speedXY = Vec2(rateX, rateY);
-	if (AnimationCache::getInstance()->getAnimation("enemyBullet") == nullptr)
+	if (BattleManager::getInstance()->m_hero)
 	{
-		Vector<SpriteFrame*>vSf;
-		for (int i = 0; i < 3; ++i)
+		m_ownToPlayer = 0;
+		m_speed = speed;
+		auto targetPos = BattleManager::getInstance()->m_hero->getPosition();
+		auto XY = Vec2(this->getPositionX() - targetPos.x, this->getPositionY() - targetPos.y);
+		auto rateX = XY.x / sqrt((XY.x*XY.x) + (XY.y*XY.y));
+		auto rateY = XY.y / sqrt((XY.x*XY.x) + (XY.y*XY.y));
+		m_speedXY = Vec2(rateX, rateY);
+		if (AnimationCache::getInstance()->getAnimation("enemyBullet") == nullptr)
 		{
-			auto filename = StringUtils::format("image%d.png", 1264 + i * 2);
-			vSf.pushBack(SpriteFrame::create(filename, Rect(0, 0, 18, 18)));
+			Vector<SpriteFrame*>vSf;
+			for (int i = 0; i < 3; ++i)
+			{
+				auto filename = StringUtils::format("image%d.png", 1264 + i * 2);
+				vSf.pushBack(SpriteFrame::create(filename, Rect(0, 0, 18, 18)));
+			}
+			AnimationCache::getInstance()->addAnimation(Animation::createWithSpriteFrames(vSf, 0.3), "enemyBullet");
 		}
-		AnimationCache::getInstance()->addAnimation(Animation::createWithSpriteFrames(vSf, 0.3), "enemyBullet");
+		m_bulletSprite->initWithFile("image1264.png");
+		m_bulletSprite->runAction(RepeatForever::create(Animate::create(AnimationCache::getInstance()->getAnimation("enemyBullet"))));
 	}
-	m_bulletSprite->initWithFile("image1264.png");
-	m_bulletSprite->runAction(RepeatForever::create(Animate::create(AnimationCache::getInstance()->getAnimation("enemyBullet"))));
+	else
+	{
+		BattleManager::getInstance()->vBullet.eraseObject(this);
+		this->removeFromParent();
+	}
 }

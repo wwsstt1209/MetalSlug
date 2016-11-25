@@ -118,29 +118,54 @@ void BattleScene1::pressKeyCallback(EventKeyboard::KeyCode code, Event* evt)
 	switch (code)
 	{
 	case EventKeyboard::KeyCode::KEY_W:
-		heroInfo->m_towardY = UP;
+		if (heroInfo->m_act != ONCANNON)
+			heroInfo->m_towardY = UP;
 		break;
 	case EventKeyboard::KeyCode::KEY_A:
 		heroInfo->m_towardX_state |= 2;
-		heroInfo->m_towardX = LEFT;
-		if(heroInfo->m_act != JUMP)
-			heroInfo->m_act = MOVE;
+		if (heroInfo->m_act != ONCANNON)
+		{
+			heroInfo->m_towardX = LEFT;
+			if (heroInfo->m_act != JUMP)
+				heroInfo->m_act = MOVE;
+		}
+		else
+		{
+
+		}
 		break;
 	case EventKeyboard::KeyCode::KEY_S:
-		heroInfo->m_towardY = DOWN;
-		heroInfo->m_speed = 1;
+		if (heroInfo->m_act != ONCANNON)
+		{
+			heroInfo->m_towardY = DOWN;
+			heroInfo->m_speed = 1;
+		}
 		break;
 	case EventKeyboard::KeyCode::KEY_D:
 		heroInfo->m_towardX_state |= 1;
-		heroInfo->m_towardX = RIGHT;
-		if (heroInfo->m_act != JUMP)
-			heroInfo->m_act = MOVE;
+		if (heroInfo->m_act != ONCANNON)
+		{
+			heroInfo->m_towardX = RIGHT;
+			if (heroInfo->m_act != JUMP)
+				heroInfo->m_act = MOVE;
+		}
+		else
+		{
+
+		}
 		break;
 	case EventKeyboard::KeyCode::KEY_J:
-		if (!heroInfo->m_isHitting)
+		if (heroInfo->m_act != ONCANNON)
 		{
-			heroInfo->m_isHitting = 1;
-			hero->hit();
+			if (!heroInfo->m_isHitting)
+			{
+				heroInfo->m_isHitting = 1;
+				hero->hit();
+			}
+		}
+		else
+		{
+
 		}
 		break;
 	case EventKeyboard::KeyCode::KEY_K:
@@ -151,7 +176,7 @@ void BattleScene1::pressKeyCallback(EventKeyboard::KeyCode code, Event* evt)
 		}
 		break;
 	case EventKeyboard::KeyCode::KEY_L:
-		if (!heroInfo->m_isThrowing)
+		if (!heroInfo->m_isThrowing && heroInfo->m_act != ONCANNON)
 		{
 			heroInfo->m_isThrowing = 1;
 			hero->throwBomb();
@@ -169,20 +194,32 @@ void BattleScene1::releaseKeyCallback(EventKeyboard::KeyCode code, Event* evt)
 	{
 	case EventKeyboard::KeyCode::KEY_A:
 		HeroInfo::getInstance()->m_towardX_state &= 13;
-		if (HeroInfo::getInstance()->m_act != JUMP && HeroInfo::getInstance()->m_towardX_state == 0)
-			HeroInfo::getInstance()->m_act = HeroAction::STAND;
+		if (HeroInfo::getInstance()->m_act != ONCANNON)
+		{
+			if (HeroInfo::getInstance()->m_act != JUMP && HeroInfo::getInstance()->m_towardX_state == 0)
+				HeroInfo::getInstance()->m_act = HeroAction::STAND;
+		}
 		break;
 	case EventKeyboard::KeyCode::KEY_D:
 		HeroInfo::getInstance()->m_towardX_state &= 14;
-		if (HeroInfo::getInstance()->m_act != JUMP && HeroInfo::getInstance()->m_towardX_state == 0)
-			HeroInfo::getInstance()->m_act = HeroAction::STAND;
+		if (HeroInfo::getInstance()->m_act != ONCANNON)
+		{
+			if (HeroInfo::getInstance()->m_act != JUMP && HeroInfo::getInstance()->m_towardX_state == 0)
+				HeroInfo::getInstance()->m_act = HeroAction::STAND;
+		}
 		break;
 	case EventKeyboard::KeyCode::KEY_S:
-		HeroInfo::getInstance()->m_speed = 2;
-		HeroInfo::getInstance()->m_towardY = NORMAL;
+		if (HeroInfo::getInstance()->m_act != ONCANNON)
+		{
+			HeroInfo::getInstance()->m_speed = 2;
+			HeroInfo::getInstance()->m_towardY = NORMAL;
+		}
 		break;
 	case EventKeyboard::KeyCode::KEY_W:
-		HeroInfo::getInstance()->m_towardY = NORMAL;
+		if (HeroInfo::getInstance()->m_act != ONCANNON)
+		{
+			HeroInfo::getInstance()->m_towardY = NORMAL;
+		}
 		break;
 	default:
 		break;
@@ -221,10 +258,10 @@ void BattleScene1::update(float dt)
 	{
 		//创建一个飞机炸毁卡车并进入P2
 	}
-	if (BattleManager::getInstance()->vEnemy.size() == 0)
+	if (BattleManager::getInstance()->vEnemy.size() == 0 && !m_startCreateEnemy)
 	{
+		m_startCreateEnemy = 1;
 		schedule(CC_CALLBACK_0(BattleScene1::createNewEnemyWave, this), 3, "createEnemy");
-		++BattleManager::getInstance()->m_airEnemyWave;
 	}
 }
 
@@ -238,8 +275,10 @@ void BattleScene1::createNewEnemyWave()
 	if (wave == 4)
 	{
 		wave = 0;
+		m_startCreateEnemy = 0;
 		unschedule("createEnemy");
 	}
+	++BattleManager::getInstance()->m_airEnemyWave;
 }
 
 void BattleScene1::createNewBombWave()

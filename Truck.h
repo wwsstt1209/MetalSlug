@@ -11,6 +11,9 @@ class Truck :public Node
 public:
 	static Truck* create();
 	bool init();
+	void updateCannon(bool left);
+	void resetCannon();
 private:
 	Armature* m_armature = nullptr;
+	Cannon* m_cannon = nullptr;
 };

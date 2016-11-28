@@ -53,6 +53,7 @@ bool BattleScene1::init()
 
 	auto truck = Truck::create();				//卡车
 	truck->setPosition(Vec2(-50, -120) + visibleSize / 2);
+	truck->setName("truck");
 	this->addChild(truck, 0);
 
 	this->setPositionY(this->getPositionY() - 65);
@@ -64,12 +65,9 @@ bool BattleScene1::init()
 
 	scheduleUpdate();
 
-	//auto lis2 = EventListenerTouchOneByOne::create();
-	//lis2->onTouchBegan = [](Touch* t, Event* e)->bool {
-	//	CCLOG("%f,%f", t->getLocation().x, t->getLocation().y);
-	//	return 1;
-	//};
-	//_eventDispatcher->addEventListenerWithSceneGraphPriority(lis2, this);
+	auto boss = Boss::create();
+	this->addChild(boss,4);
+	boss->setPosition(Vec2(300, 200));
 
 	return 1;
 }
@@ -129,10 +127,6 @@ void BattleScene1::pressKeyCallback(EventKeyboard::KeyCode code, Event* evt)
 			if (heroInfo->m_act != JUMP)
 				heroInfo->m_act = MOVE;
 		}
-		else
-		{
-
-		}
 		break;
 	case EventKeyboard::KeyCode::KEY_S:
 		if (heroInfo->m_act != ONCANNON)
@@ -148,10 +142,6 @@ void BattleScene1::pressKeyCallback(EventKeyboard::KeyCode code, Event* evt)
 			heroInfo->m_towardX = RIGHT;
 			if (heroInfo->m_act != JUMP)
 				heroInfo->m_act = MOVE;
-		}
-		else
-		{
-
 		}
 		break;
 	case EventKeyboard::KeyCode::KEY_J:
@@ -173,6 +163,9 @@ void BattleScene1::pressKeyCallback(EventKeyboard::KeyCode code, Event* evt)
 		{
 			heroInfo->m_act = JUMP;
 			heroInfo->m_speedUp = 15;
+			auto truck = (Truck*)this->getChildByName("truck");
+			truck->resetCannon();
+			hero->resetCannon();
 		}
 		break;
 	case EventKeyboard::KeyCode::KEY_L:
@@ -230,7 +223,6 @@ void BattleScene1::update(float dt)
 {
 	//Color3B transitColor = { 255, 255, 255 };
 	//Director::getInstance()->replaceScene(CCTransitionFade::create(4.0f, SceneManager::getInstance()->getDeadScene(), transitColor));
-	static Node* hero = BattleManager::getInstance()->m_hero;
 	{
 		static Node* bg1 = this->getChildByName("bg1");
 		static Node* bg2 = this->getChildByName("bg2");
@@ -245,23 +237,58 @@ void BattleScene1::update(float dt)
 			bg2->setPositionX(Director::getInstance()->getVisibleSize().width + bg2->getContentSize().width / 2);
 		}
 	}
-	if (BattleManager::getInstance()->m_airEnemyWave == 2)
-	{
-		//创建发射导弹飞机
-	}
-	if (BattleManager::getInstance()->m_airEnemyWave == 5 || BattleManager::getInstance()->m_airEnemyWave == 7)
-	{
-		//掉落炸弹
-		createNewBombWave();
-	}
-	if (BattleManager::getInstance()->m_airEnemyWave == 8)
-	{
-		//创建一个飞机炸毁卡车并进入P2
-	}
-	if (BattleManager::getInstance()->vEnemy.size() == 0 && !m_startCreateEnemy)
+	if (BattleManager::getInstance()->vEnemy.size() == 0 && !m_startCreateEnemy && !m_sceneEnd)
 	{
 		m_startCreateEnemy = 1;
 		schedule(CC_CALLBACK_0(BattleScene1::createNewEnemyWave, this), 3, "createEnemy");
+	}
+	if (BattleManager::getInstance()->m_airEnemyWave == 2)
+	{
+		//创建发射导弹飞机
+		auto plane = EnemyPlane1::create();
+		this->addChild(plane, 2);
+		plane->setPosition(450, 500);
+		plane->runAction(MoveBy::create(2, Vec2(0, -150)));
+		++BattleManager::getInstance()->m_airEnemyWave;
+	}
+	else if (BattleManager::getInstance()->m_airEnemyWave == 5)
+	{
+		//创建发射子弹飞机
+		auto plane = EnemyPlane2::create();
+		this->addChild(plane, 3);
+		plane->setPosition(200, 550);
+		plane->runAction(MoveBy::create(2, Vec2(0, -150)));
+		++BattleManager::getInstance()->m_airEnemyWave;
+	}
+	else if (BattleManager::getInstance()->m_airEnemyWave == 7)
+	{
+		//掉落炸弹
+		createNewBombWave();
+		++BattleManager::getInstance()->m_airEnemyWave;
+	}
+	else if (BattleManager::getInstance()->m_airEnemyWave == 9 && BattleManager::getInstance()->vEnemy.size() == 0)
+	{
+		//创建一个飞机炸毁卡车并进入P2
+		m_sceneEnd = 1;
+		unschedule("createEnemy");
+		++BattleManager::getInstance()->m_airEnemyWave;
+	}
+	{
+		++m_timer;
+		auto truck = (Truck*)this->getChildByName("truck");
+		auto hero = (Hero*)this->getChildByName("hero");
+		if (HeroInfo::getInstance()->m_towardX_state == 2 && HeroInfo::getInstance()->m_act == ONCANNON && m_timer >= 6)
+		{
+			truck->updateCannon(1);
+			hero->updateCannon(1);
+			m_timer = 0;
+		}
+		if (HeroInfo::getInstance()->m_towardX_state == 1 && HeroInfo::getInstance()->m_act == ONCANNON && m_timer >= 6)
+		{
+			truck->updateCannon(0);
+			hero->updateCannon(0);
+			m_timer = 0;
+		}
 	}
 }
 
@@ -269,16 +296,16 @@ void BattleScene1::createNewEnemyWave()
 {
 	static int wave = 0;
 	auto enemy = Enemy::create();
-	enemy->setPosition(Vec2(60, 80) + Director::getInstance()->getVisibleSize());
-	this->addChild(enemy, 2);
+	enemy->setPosition(Vec2(50, 70) + Director::getInstance()->getVisibleSize());
+	this->addChild(enemy, 1);
 	++wave;
 	if (wave == 4)
 	{
 		wave = 0;
 		m_startCreateEnemy = 0;
 		unschedule("createEnemy");
+		++BattleManager::getInstance()->m_airEnemyWave;
 	}
-	++BattleManager::getInstance()->m_airEnemyWave;
 }
 
 void BattleScene1::createNewBombWave()
@@ -287,7 +314,7 @@ void BattleScene1::createNewBombWave()
 	for (int i = 0; i < 5; ++i)
 	{
 		auto bomb = EnemyBomb::create();
-		this->addChild(bomb,1);
+		this->addChild(bomb,0);
 		bomb->setPosition(Vec2(visibleSize.width / 2 - 160 + i * 80, visibleSize.height + 100 + i * 20));
 	}
 }

@@ -11,9 +11,9 @@ public:
 	virtual bool init();
 	void update(float dt);
 	void shootUpdate(float dt);
-protected:
+private:
 	int m_hp;
 	int m_score;
 	Sprite* m_body;
-private:
+	Vec2 m_shootPoint;
 };

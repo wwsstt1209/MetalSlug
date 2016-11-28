@@ -97,6 +97,20 @@ void Hero::update(float dt)
 	{
 		if (heroInfo->m_towardX_state == 0)
 			heroInfo->m_act = STAND;
+		if (heroInfo->m_towardX_state == 1)
+		{
+			if (BattleManager::getInstance()->m_inBattleNum == 1 && this->getPositionX() > 440)
+				this->runAction(MoveBy::create(0.5, Vec2(0, -80)));
+			if (BattleManager::getInstance()->m_inBattleNum == 1 && this->getPositionX() > 370 && this->getPositionY() > 115 && this->getPositionX() - heroInfo->m_speed <= 370)
+				this->runAction(MoveBy::create(0.1, Vec2(0, -55)));
+		}
+		if (heroInfo->m_towardX_state == 2)
+		{
+			if (BattleManager::getInstance()->m_inBattleNum == 1 && this->getPositionX() < 110)
+				this->runAction(MoveBy::create(0.8, Vec2(0, -100)));
+			if (BattleManager::getInstance()->m_inBattleNum == 1 && this->getPositionY() < 170 && this->getPositionX() <= 370 && this->getPositionX() >= 110)
+				this->setPositionX(371);
+		}
 		if (heroInfo->m_act != JUMP && !heroInfo->m_isHitting && !heroInfo->m_isThrowing)
 		{
 			if (heroInfo->m_gun == SMALL)
@@ -146,7 +160,6 @@ void Hero::update(float dt)
 	{
 		m_armature->setVisible(0);
 		m_sprite->setVisible(1);
-		this->setPosition(250, 200);
 	}
 		break;
 	default:
@@ -158,10 +171,6 @@ void Hero::update(float dt)
 		if (heroInfo->m_act != ONCANNON)
 		{
 			this->setPositionX(this->getPositionX() - heroInfo->m_speed);
-			if (BattleManager::getInstance()->m_inBattleNum == 1 && this->getPositionX() < 110)
-				this->runAction(MoveBy::create(0.8, Vec2(0, -100)));
-			if (BattleManager::getInstance()->m_inBattleNum == 1 && this->getPositionY() < 170 && this->getPositionX() <= 370 && this->getPositionX() >= 110)
-				this->setPositionX(371);
 			this->setScaleX(1);
 		}
 	}
@@ -170,10 +179,6 @@ void Hero::update(float dt)
 		if (heroInfo->m_act != ONCANNON)
 		{
 			this->setPositionX(this->getPositionX() + heroInfo->m_speed);
-			if (BattleManager::getInstance()->m_inBattleNum == 1 && this->getPositionX() > 440)
-				this->runAction(MoveBy::create(0.5, Vec2(0, -80)));
-			if (BattleManager::getInstance()->m_inBattleNum == 1 && this->getPositionX() > 370 && this->getPositionX() - heroInfo->m_speed <= 370)
-				this->runAction(MoveBy::create(0.1, Vec2(0, -55)));
 			this->setScaleX(-1);
 		}
 	}
@@ -213,16 +218,17 @@ void Hero::jump()
 			
 			if (heroInfo->m_speedUp < 0 && this->getPositionY() < 230 && heroInfo->m_act != ONCANNON)
 			{
-				Rect cannonRect = { 210, 180, 80, 40 };
+				Rect cannonRect = { 230, 180, 40, 40 };
 				if (cannonRect.containsPoint(this->getPosition()))
 				{
+					this->setPosition(250, 200);
 					heroInfo->m_act = ONCANNON;
 					return;
 				}
 			}
 		}
 		//ÂäµØ
-		if (this->getPositionY() <= height)
+		if (this->getPositionY() <= height && heroInfo->m_speedUp <= 0)
 		{
 			this->setPositionY(height);
 			heroInfo->m_speedUp = 0;
@@ -525,4 +531,34 @@ void Hero::armatureCallback(Armature *armature, MovementEventType movementType, 
 	{
 		heroInfo->m_isThrowing = 0;
 	}
+}
+
+void Hero::updateCannon(bool left)
+{
+	if (left)
+	{
+		--m_toward;
+		if (m_toward < -8)
+			m_toward = -8;
+	}
+	else
+	{
+		++m_toward;
+		if (m_toward > 8)
+			m_toward = 8;
+	}
+
+	if (m_toward < 0)
+		this->setScaleX(1);
+	else
+		this->setScaleX(-1);
+	auto fileName = StringUtils::format("onCanon/image%d.png", 2040 + (int)(sqrt(m_toward*m_toward)) * 2);
+	m_sprite->initWithFile(fileName);
+	this->setPosition(Vec2(9 * -m_toward, 4 * (int)(sqrt(m_toward*m_toward))) + Vec2(250, 200));
+}
+
+void Hero::resetCannon()
+{
+	m_toward = 0;
+	m_sprite->initWithFile("onCanon/image2040.png");
 }

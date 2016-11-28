@@ -10,10 +10,12 @@ public:
 	static Bullet* create();
 	bool init();
 	void update(float dt);
-	void initData(bool ownToPlayer, float speed, int toward);//0123上右下左
-	void initEnemyBullet(float speed);
+	void initData(int ownToPlayer, float speed, int toward);//0123上右下左
+	void initEnemyBullet(int ownToPlayer, float speed);
+	void initEnemyPlaneBullet1(int ownToPlayer, float speedY);
+	void initEnemyPlaneBullet2(int ownToPlayer, float speedY);
 private:
-	bool m_ownToPlayer;
+	int m_ownToPlayer;
 	float m_speed;
 	int m_toward;
 	Sprite* m_bulletSprite;

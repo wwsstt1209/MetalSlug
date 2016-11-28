@@ -33,7 +33,7 @@ bool Bullet::init()
 
 void Bullet::update(float dt)
 {
-	if (m_ownToPlayer)
+	if (m_ownToPlayer == 0)
 	{
 		switch (m_toward)
 		{
@@ -56,11 +56,28 @@ void Bullet::update(float dt)
 			break;
 		}
 	}
-	else
+	else if (m_ownToPlayer == 1)
 	{
 		this->setPosition(Vec2(this->getPositionX() - m_speed * m_speedXY.x, this->getPositionY() - m_speed * m_speedXY.y));
 	}
-	auto wndRect = Rect{ 0, 65, Director::getInstance()->getVisibleSize().width, Director::getInstance()->getVisibleSize().height };
+	else if (m_ownToPlayer == 2)
+	{
+		if (m_speedXY.y > 0)
+		{
+			this->setPositionY(this->getPositionY() - m_speedXY.y);
+			--m_speedXY.y;
+		}
+		else
+		{
+			m_speedXY.x += 0.2;
+			this->setPositionX(this->getPositionX() - m_speedXY.x);
+		}
+	}
+	else if (m_ownToPlayer == 3)
+	{
+		this->setPositionY(this->getPositionY() - m_speedXY.y);
+	}
+	static Rect wndRect = Rect{ 0, 65, Director::getInstance()->getVisibleSize().width, Director::getInstance()->getVisibleSize().height };
 	if (!wndRect.containsPoint(this->getPosition()))
 	{
 		BattleManager::getInstance()->vBullet.eraseObject(this);
@@ -68,33 +85,30 @@ void Bullet::update(float dt)
 	}
 }
 
-void Bullet::initData(bool b, float speed, int toward)
+void Bullet::initData(int b, float speed, int toward)
 {
 	m_ownToPlayer = b;
 	m_speed = speed;
 	m_toward = toward;
-	if (m_ownToPlayer)
+	switch (HeroInfo::getInstance()->m_gun)
 	{
-		switch (HeroInfo::getInstance()->m_gun)
-		{
-		case SMALL:
-			m_bulletSprite->initWithFile("image2376.png");
-			break;
-		case MEDIUM:
-			m_bulletSprite->initWithFile("image2403.png");
-			break;
-		case GIANT:
-			m_bulletSprite->initWithFile("image2416.png");    // 有序列帧
-			break;
-		}
+	case SMALL:
+		m_bulletSprite->initWithFile("image2376.png");
+		break;
+	case MEDIUM:
+		m_bulletSprite->initWithFile("image2403.png");
+		break;
+	case GIANT:
+		m_bulletSprite->initWithFile("image2416.png");    // 有序列帧
+		break;
 	}
 }
 
-void Bullet::initEnemyBullet(float speed)
+void Bullet::initEnemyBullet(int ownToPlayer, float speed)
 {
 	if (BattleManager::getInstance()->m_hero)
 	{
-		m_ownToPlayer = 0;
+		m_ownToPlayer = ownToPlayer;
 		m_speed = speed;
 		auto targetPos = BattleManager::getInstance()->m_hero->getPosition();
 		auto XY = Vec2(this->getPositionX() - targetPos.x, this->getPositionY() - targetPos.y);
@@ -119,4 +133,26 @@ void Bullet::initEnemyBullet(float speed)
 		BattleManager::getInstance()->vBullet.eraseObject(this);
 		this->removeFromParent();
 	}
+}
+
+void Bullet::initEnemyPlaneBullet1(int ownToPlayer, float speedY)
+{
+	m_ownToPlayer = ownToPlayer;
+	m_bulletSprite->initWithFile("image720.png");
+	m_speedXY = Vec2(0, speedY);
+	m_bulletSprite->setFlippedX(1);
+}
+
+void Bullet::initEnemyPlaneBullet2(int ownToPlayer, float speedY)
+{
+	m_ownToPlayer = ownToPlayer;
+	m_speedXY = Vec2(0, speedY);
+	m_bulletSprite->initWithFile("image1234.png");
+	auto callback1 = CallFunc::create([this]()->void{
+		m_bulletSprite->initWithFile("image1236.png");
+	});
+	auto callback2 = CallFunc::create([this]()->void{
+		m_bulletSprite->initWithFile("image1234.png");
+	});
+	m_bulletSprite->runAction(RepeatForever::create(Sequence::create(callback1, DelayTime::create(0.3), callback2, DelayTime::create(0.3), nullptr)));
 }

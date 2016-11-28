@@ -31,3 +31,31 @@ bool Cannon::init()
 
 	return 1;
 }
+
+void Cannon::updateCannon(bool left)
+{
+	if (left)
+	{
+		--m_toward;
+		if (m_toward < -8)
+			m_toward = -8;
+	}
+	else
+	{
+		++m_toward;
+		if (m_toward > 8)
+			m_toward = 8;
+	}
+	if (m_toward < 0)
+		this->setScaleX(-1);
+	else
+		this->setScaleX(1);
+	auto fileName = StringUtils::format("onCanon/image%d.png", 2014 + (int)(sqrt(m_toward*m_toward)) * 2);
+	spr1->initWithFile(fileName);
+}
+
+void Cannon::resetCannon()
+{
+	m_toward = 0;
+	spr1->initWithFile("onCanon/image2014.png");
+}

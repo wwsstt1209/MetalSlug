@@ -14,6 +14,8 @@ public:
 	static Hero* create();
 	bool init();
 	void update(float dt);
+	void updateCannon(bool left);
+	void resetCannon();
 	void jump();
 	void hit();
 	void throwBomb();
@@ -22,4 +24,5 @@ private:
 	Armature* m_armature = nullptr;
 	Launcher* m_launcher = nullptr;
 	Sprite* m_sprite = nullptr;
+	int m_toward = 0;
 };

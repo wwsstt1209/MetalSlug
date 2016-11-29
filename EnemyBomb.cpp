@@ -30,25 +30,41 @@ bool EnemyBomb::init()
 			auto sf = SpriteFrame::create(filename, Rect(0, 0, 29, 44));
 			vBomb.pushBack(sf);
 		}
-		AnimationCache::getInstance()->addAnimation(Animation::createWithSpriteFrames(vBomb, 0.2),"EnemyBomb");
+		AnimationCache::getInstance()->addAnimation(Animation::createWithSpriteFrames(vBomb, 0.2), "EnemyBomb");
 	}
+
+	return 1;
+}
+
+void EnemyBomb::initWithUmbrella()
+{
 
 	m_bomb = Sprite::create("image711.png");
 	this->addChild(m_bomb);
 	m_bomb->runAction(RepeatForever::create(Animate::create(AnimationCache::getInstance()->getAnimation("EnemyBomb"))));
 
-	m_umbrella = Sprite::create("airEnemy/image2881.png");
-	this->addChild(m_umbrella);
-	m_umbrella->setPosition(Vec2(0, 50));
+	auto umbrella = Sprite::create("airEnemy/image2881.png");
+	this->addChild(umbrella);
+	umbrella->setPosition(Vec2(0, 50));
 
-	BattleManager::getInstance()->vEnemyBomb.pushBack(this);
-
-	scheduleUpdate();
-
-	return 1;
+	schedule(CC_CALLBACK_1(EnemyBomb::update1, this), 1.0f / 60, "bombWithUmbrella");
 }
 
-void EnemyBomb::update(float dt)
+void EnemyBomb::initBreakTruck()
+{
+	m_bomb = Sprite::create("image711.png");
+	this->addChild(m_bomb);
+	m_bomb->runAction(RepeatForever::create(Animate::create(AnimationCache::getInstance()->getAnimation("EnemyBomb"))));
+
+	schedule(CC_CALLBACK_1(EnemyBomb::update2, this), 1.0f / 60, "bombBreakTruck");
+}
+
+void EnemyBomb::update1(float dt)
 {
 	this->setPositionY(this->getPositionY() - 0.5);
+}
+
+void EnemyBomb::update2(float dt)
+{
+	this->setPositionY(this->getPositionY() - 5);
 }

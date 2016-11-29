@@ -77,8 +77,8 @@ void EnemyPlane2::flyUpdate(float dt)
 void EnemyPlane2::shootUpdate(float dt)
 {
 	auto b = Bullet::create();
-	b->initEnemyPlaneBullet2(3, 3);
+	b->initEnemyPlaneBullet2(3);
 	b->setPosition(Vec2(0, -85) + this->getPosition());
 	BattleManager::getInstance()->battleScene->addChild(b, 3);
-	BattleManager::getInstance()->vBullet.pushBack(b);
+	BattleManager::getInstance()->vEnemyBullet.pushBack(b);
 }

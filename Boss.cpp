@@ -48,3 +48,16 @@ void Boss::update(float dt)
 {
 
 }
+
+void Boss::breakTruck()
+{
+	schedule(CC_CALLBACK_0(Boss::breakTruckUpdate, this), 0.8, "breakTruck");
+}
+
+void Boss::breakTruckUpdate()
+{
+	auto bomb = EnemyBomb::create();
+	bomb->initBreakTruck();
+	BattleManager::getInstance()->battleScene->addChild(bomb, 4);
+	bomb->setPosition(this->getPosition());
+}

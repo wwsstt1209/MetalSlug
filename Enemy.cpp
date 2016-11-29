@@ -20,14 +20,12 @@ bool Enemy::init()
 	{
 		return 0;
 	}
-	schedule(CC_CALLBACK_1(Enemy::shootUpdate, this), 6, "enemyShoot");
+	schedule(CC_CALLBACK_1(Enemy::shootUpdate, this), 6 + CCRANDOM_0_1()*4, "enemyShoot");
 	scheduleUpdate();
 
 	m_body = Sprite::create("airEnemy/image2885.png");
 	this->addChild(m_body);
 	m_shootPoint = Vec2(-50, -75);
-
-	BattleManager::getInstance()->vEnemy.pushBack(this);
 
 	return 1;
 }
@@ -67,5 +65,6 @@ void Enemy::shootUpdate(float dt)
 	auto b = Bullet::create();
 	BattleManager::getInstance()->battleScene->addChild(b, 1);
 	b->setPosition(m_shootPoint + this->getPosition());
-	b->initEnemyBullet(1,2);
+	b->initEnemyBullet(2);
+	BattleManager::getInstance()->vEnemyBullet.pushBack(b);
 }

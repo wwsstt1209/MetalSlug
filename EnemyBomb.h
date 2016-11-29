@@ -7,8 +7,11 @@ class EnemyBomb :public Node
 public:
 	static EnemyBomb* create();
 	bool init();
-	void update(float dt);
+	void initWithUmbrella();
+	void initBreakTruck();
+	void update1(float dt);
+	void update2(float dt);
 private:
 	Sprite* m_bomb = nullptr;
-	Sprite* m_umbrella = nullptr;
+	int m_type;
 };

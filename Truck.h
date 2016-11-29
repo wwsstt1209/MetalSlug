@@ -13,6 +13,7 @@ public:
 	bool init();
 	void updateCannon(bool left);
 	void resetCannon();
+	void cannonFire(bool b);
 private:
 	Armature* m_armature = nullptr;
 	Cannon* m_cannon = nullptr;

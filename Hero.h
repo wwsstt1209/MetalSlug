@@ -20,6 +20,8 @@ public:
 	void hit();
 	void throwBomb();
 	void armatureCallback(Armature *armature, MovementEventType movementType, const std::string& movementID);
+	void escapeFromTruck();
+	void getIntoTruck();
 private:
 	Armature* m_armature = nullptr;
 	Launcher* m_launcher = nullptr;

@@ -44,7 +44,7 @@ bool BattleScene1::init()
 	backGround2->setName("bg2");
 	this->addChild(backGround2,-1);
 
-	auto myHero = Hero::create();				//创建英雄
+	auto myHero = Hero::create();			//创建英雄
 	myHero->setPosition(Vec2(-120, -30) + visibleSize / 2);
 	this->addChild(myHero, 5);
 	myHero->setScaleX(-1);
@@ -65,48 +65,7 @@ bool BattleScene1::init()
 
 	scheduleUpdate();
 
-	auto boss = Boss::create();
-	this->addChild(boss,4);
-	boss->setPosition(Vec2(300, 200));
-
 	return 1;
-}
-
-void BattleScene1::loadEnemyDeadResource()
-{
-	if (AnimationCache::getInstance()->getAnimation("dead1") == nullptr)
-	{
-		SpriteFrameCache::getInstance()->addSpriteFramesWithFile("enemy1/EnemyDead.plist");
-		Vector<SpriteFrame*>vDead;
-		for (int i = 0; i < 11; ++i)
-		{
-			auto fileName = StringUtils::format("image%d.png", 620 + i * 2);
-			vDead.pushBack(SpriteFrameCache::getInstance()->getSpriteFrameByName(fileName));
-		}
-		AnimationCache::getInstance()->addAnimation(Animation::createWithSpriteFrames(vDead, 0.1), "dead1");
-	}
-
-	if (AnimationCache::getInstance()->getAnimation("dead2") == nullptr)
-	{
-		Vector<SpriteFrame*>vDead;
-		for (int i = 0; i < 10; ++i)
-		{
-			auto fileName = StringUtils::format("image%d.png", 658 + i * 2);
-			vDead.pushBack(SpriteFrameCache::getInstance()->getSpriteFrameByName(fileName));
-		}
-		AnimationCache::getInstance()->addAnimation(Animation::createWithSpriteFrames(vDead, 0.1), "dead2");
-	}
-
-	if (AnimationCache::getInstance()->getAnimation("dead3") == nullptr)
-	{
-		Vector<SpriteFrame*>vDead;
-		for (int i = 0; i < 7; ++i)
-		{
-			auto fileName = StringUtils::format("image%d.png", 643 + i * 2);
-			vDead.pushBack(SpriteFrameCache::getInstance()->getSpriteFrameByName(fileName));
-		}
-		AnimationCache::getInstance()->addAnimation(Animation::createWithSpriteFrames(vDead, 0.1), "dead3");
-	}
 }
 
 void BattleScene1::pressKeyCallback(EventKeyboard::KeyCode code, Event* evt)
@@ -155,7 +114,8 @@ void BattleScene1::pressKeyCallback(EventKeyboard::KeyCode code, Event* evt)
 		}
 		else
 		{
-
+			auto truck = (Truck*)this->getChildByName("truck");
+			truck->cannonFire(1);
 		}
 		break;
 	case EventKeyboard::KeyCode::KEY_K:
@@ -212,6 +172,13 @@ void BattleScene1::releaseKeyCallback(EventKeyboard::KeyCode code, Event* evt)
 		if (HeroInfo::getInstance()->m_act != ONCANNON)
 		{
 			HeroInfo::getInstance()->m_towardY = NORMAL;
+		}
+		break;
+	case EventKeyboard::KeyCode::KEY_J:
+		if (HeroInfo::getInstance()->m_act == ONCANNON)
+		{
+			auto truck = (Truck*)this->getChildByName("truck");
+			truck->cannonFire(0);
 		}
 		break;
 	default:
@@ -271,6 +238,16 @@ void BattleScene1::update(float dt)
 		//创建一个飞机炸毁卡车并进入P2
 		m_sceneEnd = 1;
 		unschedule("createEnemy");
+		auto boss = Boss::create();
+		this->addChild(boss, 4);
+		boss->setPosition(Vec2(-150, 350));
+		auto releaseCallback = CallFunc::create([boss]()->void{
+			BattleManager::getInstance()->m_airEnemyWave = 0;
+			boss->removeFromParent();
+		});
+		boss->runAction(Sequence::create(MoveBy::create(5, Vec2(1000, 0)), releaseCallback, nullptr));
+		boss->breakTruck();
+		scheduleOnce(CC_CALLBACK_0(BattleScene1::escapeFromTruck, this), 4, "escape");
 		++BattleManager::getInstance()->m_airEnemyWave;
 	}
 	{
@@ -306,6 +283,7 @@ void BattleScene1::createNewEnemyWave()
 		unschedule("createEnemy");
 		++BattleManager::getInstance()->m_airEnemyWave;
 	}
+	BattleManager::getInstance()->vEnemy.pushBack(enemy);
 }
 
 void BattleScene1::createNewBombWave()
@@ -316,5 +294,20 @@ void BattleScene1::createNewBombWave()
 		auto bomb = EnemyBomb::create();
 		this->addChild(bomb,0);
 		bomb->setPosition(Vec2(visibleSize.width / 2 - 160 + i * 80, visibleSize.height + 100 + i * 20));
+		BattleManager::getInstance()->vEnemyBomb.pushBack(bomb);
 	}
+}
+
+void BattleScene1::escapeFromTruck()
+{
+	auto hero = BattleManager::getInstance()->m_hero;
+	_eventDispatcher->removeEventListenersForTarget(this, 0);
+	((Hero*)hero)->escapeFromTruck();
+	scheduleOnce(CC_CALLBACK_0(BattleScene1::runBattleScene2, this), 4, "runScene2");
+}
+
+void BattleScene1::runBattleScene2()
+{
+	BattleManager::getInstance()->m_hero->removeFromParent();
+	Director::getInstance()->replaceScene(TransitionPageTurn::create(2, SceneManager::getInstance()->getBattleScene2(), 0));
 }

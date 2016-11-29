@@ -59,3 +59,29 @@ void Cannon::resetCannon()
 	m_toward = 0;
 	spr1->initWithFile("onCanon/image2014.png");
 }
+
+void Cannon::fire(bool b)
+{
+	if (!m_fire && b)
+	{
+		m_fire = b;
+		schedule(CC_CALLBACK_0(Cannon::fireUpdate, this), 0.2, "Fire");
+	}
+	else if (m_fire && !b)
+	{
+		m_fire = b;
+		unschedule("Fire");
+	}
+	else
+	{
+		return;
+	}
+}
+
+void Cannon::fireUpdate()
+{
+	auto b = Bullet::create();
+	b->initCannonBullet(m_toward);
+	BattleManager::getInstance()->battleScene->addChild(b, 1);
+	BattleManager::getInstance()->vHeroBullet.pushBack(b);
+}

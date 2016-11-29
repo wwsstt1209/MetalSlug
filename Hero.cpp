@@ -28,6 +28,7 @@ bool Hero::init()
 	m_armature->setPosition(this->getContentSize() / 2);
 	m_armature->getAnimation()->setMovementEventCallFunc(CC_CALLBACK_3(Hero::armatureCallback, this));
 	this->addChild(m_armature);
+	m_armature->setVisible(1);
 
 	m_sprite = Sprite::create("onCanon/image2040.png");
 	this->addChild(m_sprite);
@@ -37,26 +38,6 @@ bool Hero::init()
 	m_launcher->setPosition(Vec2(0,10));
 	this->addChild(m_launcher);
 	m_launcher->initData((int)(HeroInfo::getInstance()->m_gun));
-
-	if (BattleManager::getInstance()->m_inBattleNum == 0)
-	{
-		auto moveCallback = CallFunc::create([this]()->void{
-			m_armature->getAnimation()->play("stand_move_handgun_LR");
-			this->runAction(MoveBy::create(1, Vec2(200, 0)));
-		});
-		auto jumpCallback1 = CallFunc::create([this]()->void{
-			m_armature->getAnimation()->play("jump_normal_handgun_LR");
-			this->runAction(JumpBy::create(0.5, Vec2(0, 65), 85, 1));
-		});
-		auto jumpCallback2 = CallFunc::create([this]()->void{
-			m_armature->getAnimation()->play("jump_normal_handgun_LR");
-			this->runAction(JumpBy::create(0.5, Vec2(0, 100), 85, 1));
-		});
-		auto standCallback = CallFunc::create([this]()->void{
-			m_armature->getAnimation()->play("stand_stop_handgun_LR");
-		});
-		this->runAction(Sequence::create(moveCallback, DelayTime::create(1), jumpCallback1, DelayTime::create(0.5), jumpCallback2, DelayTime::create(0.5), standCallback, nullptr));
-	}
 	
 	return 1;
 }
@@ -69,7 +50,7 @@ void Hero::update(float dt)
 	{
 	case STAND:
 	{
-		if (!heroInfo->m_isHitting && !heroInfo->m_isThrowing && BattleManager::getInstance()->m_inBattleNum == 1)
+		if (!heroInfo->m_isHitting && !heroInfo->m_isThrowing)
 		{
 			if (heroInfo->m_gun == SMALL)
 			{
@@ -97,19 +78,22 @@ void Hero::update(float dt)
 	{
 		if (heroInfo->m_towardX_state == 0)
 			heroInfo->m_act = STAND;
-		if (heroInfo->m_towardX_state == 1)
+		if (BattleManager::getInstance()->m_inBattleNum == 1)
 		{
-			if (BattleManager::getInstance()->m_inBattleNum == 1 && this->getPositionX() > 440)
-				this->runAction(MoveBy::create(0.5, Vec2(0, -80)));
-			if (BattleManager::getInstance()->m_inBattleNum == 1 && this->getPositionX() > 370 && this->getPositionY() > 115 && this->getPositionX() - heroInfo->m_speed <= 370)
-				this->runAction(MoveBy::create(0.1, Vec2(0, -55)));
-		}
-		if (heroInfo->m_towardX_state == 2)
-		{
-			if (BattleManager::getInstance()->m_inBattleNum == 1 && this->getPositionX() < 110)
-				this->runAction(MoveBy::create(0.8, Vec2(0, -100)));
-			if (BattleManager::getInstance()->m_inBattleNum == 1 && this->getPositionY() < 170 && this->getPositionX() <= 370 && this->getPositionX() >= 110)
-				this->setPositionX(371);
+			if (heroInfo->m_towardX_state == 1)
+			{
+				if (BattleManager::getInstance()->m_inBattleNum == 1 && this->getPositionX() > 440)
+					this->runAction(MoveBy::create(0.5, Vec2(0, -80)));
+				if (BattleManager::getInstance()->m_inBattleNum == 1 && this->getPositionX() > 370 && this->getPositionY() > 115 && this->getPositionX() - heroInfo->m_speed <= 370)
+					this->runAction(MoveBy::create(0.1, Vec2(0, -55)));
+			}
+			if (heroInfo->m_towardX_state == 2)
+			{
+				if (BattleManager::getInstance()->m_inBattleNum == 1 && this->getPositionX() < 110)
+					this->runAction(MoveBy::create(0.8, Vec2(0, -100)));
+				if (BattleManager::getInstance()->m_inBattleNum == 1 && this->getPositionY() < 170 && this->getPositionX() <= 370 && this->getPositionX() >= 110)
+					this->setPositionX(371);
+			}
 		}
 		if (heroInfo->m_act != JUMP && !heroInfo->m_isHitting && !heroInfo->m_isThrowing)
 		{
@@ -183,8 +167,12 @@ void Hero::update(float dt)
 		}
 	}
 
-	Rect wndRect = { 0,60,Director::getInstance()->getVisibleSize().width,Director::getInstance()->getVisibleSize().height };
-	if (!wndRect.containsPoint(this->getPosition()))
+	Rect wndRect;
+	if(BattleManager::getInstance()->m_inBattleNum == 1)
+		wndRect = { 0, 60, Director::getInstance()->getVisibleSize().width, Director::getInstance()->getVisibleSize().height };
+	else
+		wndRect = { 0, 0, Director::getInstance()->getVisibleSize().width, Director::getInstance()->getVisibleSize().height };
+	if (!wndRect.containsPoint(this->getPosition()) && BattleManager::getInstance()->m_inBattleNum)
 	{
 		this->stopAllActions();
 		BattleManager::getInstance()->m_hero = nullptr;
@@ -198,25 +186,19 @@ void Hero::jump()
 	this->setPositionY(this->getPositionY() + heroInfo->m_speedUp);
 	--heroInfo->m_speedUp;
 
-	//如果人在炮上 && 炮存在 && m_speedUp<0 
-	//m_cannon = 1;
-	//换图
-	//可以用鼠标监听
-
-	//if (this->getPositionY() <= heroInfo->m_jumpStartY)  //调整下落位置
 	if(BattleManager::getInstance()->m_inBattleNum == 1)
 	{
 		float height = 0;
-		if (this->getPositionX() >= 110 && this->getPositionX() < 370)
+		if (this->getPositionX() >= 110 && this->getPositionX() < 368)
 			height = 170;
-		else if (this->getPositionX() >= 370 && this->getPositionX() <= 440)
+		else if (this->getPositionX() >= 368 && this->getPositionX() <= 440)
 			height = 115;
 		else
 			height = 0;
 		//上炮
 		{
 			
-			if (heroInfo->m_speedUp < 0 && this->getPositionY() < 230 && heroInfo->m_act != ONCANNON)
+			if (heroInfo->m_speedUp <= 0 && this->getPositionY() < 230 && heroInfo->m_act != ONCANNON)
 			{
 				Rect cannonRect = { 230, 180, 40, 40 };
 				if (cannonRect.containsPoint(this->getPosition()))
@@ -237,7 +219,12 @@ void Hero::jump()
 	}
 	if (BattleManager::getInstance()->m_inBattleNum == 2)
 	{
-
+		if (this->getPositionY() <= 80 && heroInfo->m_speedUp <= 0)
+		{
+			this->setPositionY(80);
+			heroInfo->m_speedUp = 0;
+			heroInfo->m_act = MOVE;
+		}
 	}
 }
 
@@ -517,6 +504,7 @@ void Hero::throwBomb()
 	bomb->setPosition(posInLayer + Vec2(20,55));
 	bomb->setBombData(15);
 	BattleManager::getInstance()->battleScene->addChild(bomb);
+	BattleManager::getInstance()->vHeroBomb.pushBack(bomb);
 }
 
 void Hero::armatureCallback(Armature *armature, MovementEventType movementType, const std::string& movementID)
@@ -561,4 +549,54 @@ void Hero::resetCannon()
 {
 	m_toward = 0;
 	m_sprite->initWithFile("onCanon/image2040.png");
+}
+
+void Hero::escapeFromTruck()
+{
+	unscheduleUpdate();
+	if (this->getPositionX() >= 110 && this->getPositionX() < 368)
+	{
+		this->setScaleX(1);
+		auto X = this->getPositionX() - 110;
+		auto time = X / 180;
+		m_armature->getAnimation()->play("stand_move_handgun_LR");
+		auto jumpCallback = CallFunc::create([this]()->void{m_armature->getAnimation()->play("jump_normal_handgun_LR"); });
+		this->runAction(Sequence::create(DelayTime::create(0.2),
+			MoveTo::create(time, Vec2(110, this->getPositionY())),
+			Spawn::createWithTwoActions(jumpCallback, JumpBy::create(1, Vec2(-100, -200), 100, 1)), 
+			nullptr));
+	}
+	else if (this->getPositionX() >= 368 && this->getPositionX() <= 440)
+	{
+		this->setScaleX(-1);
+		auto X = 440 - this->getPositionX();
+		auto time = X / 180;
+		m_armature->getAnimation()->play("stand_move_handgun_LR");
+		auto jumpCallback = CallFunc::create([this]()->void{m_armature->getAnimation()->play("jump_normal_handgun_LR"); });
+		this->runAction(Sequence::create(DelayTime::create(0.2), 
+			MoveTo::create(time, Vec2(440, this->getPositionY())),
+			Spawn::createWithTwoActions(jumpCallback, JumpBy::create(1, Vec2(100, -200), 100, 1)),
+			nullptr));
+	}
+}
+
+void Hero::getIntoTruck()
+{
+	unscheduleUpdate();
+	auto moveCallback = CallFunc::create([this]()->void {
+		m_armature->getAnimation()->play("stand_move_handgun_LR");
+		this->runAction(MoveBy::create(1, Vec2(200, 0)));
+	});
+	auto jumpCallback1 = CallFunc::create([this]()->void {
+		m_armature->getAnimation()->play("jump_normal_handgun_LR");
+		this->runAction(JumpBy::create(0.5, Vec2(0, 65), 85, 1));
+	});
+	auto jumpCallback2 = CallFunc::create([this]()->void {
+		m_armature->getAnimation()->play("jump_normal_handgun_LR");
+		this->runAction(JumpBy::create(0.5, Vec2(0, 100), 85, 1));
+	});
+	auto standCallback = CallFunc::create([this]()->void {
+		m_armature->getAnimation()->play("stand_stop_handgun_LR");
+	});
+	this->runAction(Sequence::create(moveCallback, DelayTime::create(1), jumpCallback1, DelayTime::create(0.5), jumpCallback2, DelayTime::create(0.5), standCallback, nullptr));
 }

@@ -22,8 +22,6 @@ bool Bomb::init()
 	}
 	scheduleUpdate();
 
-	BattleManager::getInstance()->vBomb.pushBack(this);
-
 	m_bomb = Sprite::create("image377.png");
 	if (HeroInfo::getInstance()->m_towardX == RIGHT)
 		m_bomb->setRotation(-180);

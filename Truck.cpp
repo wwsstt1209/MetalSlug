@@ -59,3 +59,8 @@ void Truck::resetCannon()
 {
 	m_cannon->resetCannon();
 }
+
+void Truck::cannonFire(bool b)
+{
+	m_cannon->fire(b);
+}

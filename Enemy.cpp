@@ -35,10 +35,10 @@ void Enemy::update(float dt)
 	//移动  
 	this->setPosition(this->getPosition() - Vec2(0.6, 0.2));
 	//改变方向  
-	if(BattleManager::getInstance()->m_hero)
+	if (GameInfo::getInstance()->m_hero)
 	{
-		float dX = this->getPositionX() - BattleManager::getInstance()->m_hero->getPositionX();
-		float dY = this->getPositionY() - BattleManager::getInstance()->m_hero->getPositionY();
+		float dX = this->getPositionX() - GameInfo::getInstance()->m_hero->getPositionX();
+		float dY = this->getPositionY() - GameInfo::getInstance()->m_hero->getPositionY();
 		if (dX < 0)
 		{
 			this->setScaleX(-1);
@@ -55,7 +55,7 @@ void Enemy::update(float dt)
 	//移出地图边缘
 	if (this->getPositionX() <= -50)
 	{
-		BattleManager::getInstance()->vEnemy.eraseObject(this);
+		GameInfo::getInstance()->vEnemy.eraseObject(this);
 		this->removeFromParent();
 	}
 }
@@ -63,8 +63,8 @@ void Enemy::update(float dt)
 void Enemy::shootUpdate(float dt)
 {
 	auto b = Bullet::create();
-	BattleManager::getInstance()->battleScene->addChild(b, 1);
+	GameInfo::getInstance()->battleScene->addChild(b, 1);
 	b->setPosition(m_shootPoint + this->getPosition());
 	b->initEnemyBullet(2);
-	BattleManager::getInstance()->vEnemyBullet.pushBack(b);
+	GameInfo::getInstance()->vEnemyBullet.pushBack(b);
 }

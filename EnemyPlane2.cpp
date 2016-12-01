@@ -76,9 +76,12 @@ void EnemyPlane2::flyUpdate(float dt)
 
 void EnemyPlane2::shootUpdate(float dt)
 {
-	auto b = Bullet::create();
-	b->initEnemyPlaneBullet2(3);
-	b->setPosition(Vec2(0, -85) + this->getPosition());
-	BattleManager::getInstance()->battleScene->addChild(b, 3);
-	BattleManager::getInstance()->vEnemyBullet.pushBack(b);
+	auto shootCallback = CallFunc::create([this]()->void{
+		auto b = Bullet::create();
+		b->initEnemyPlaneBullet2(3);
+		b->setPosition(Vec2(0, -85) + this->getPosition());
+		GameInfo::getInstance()->battleScene->addChild(b, 3);
+		GameInfo::getInstance()->vEnemyBullet.pushBack(b);
+	});
+	this->runAction(Sequence::create(shootCallback, DelayTime::create(0.3), shootCallback, DelayTime::create(0.3), shootCallback,nullptr));
 }

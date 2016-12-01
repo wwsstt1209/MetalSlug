@@ -9,6 +9,7 @@ Scene* BattleScene2::createScene()
 	auto heroInfoUI = Sprite::create("ui/image1001.png");				//Ó¢ÐÛÐÅÏ¢À¸
 	heroInfoUI->setPosition(Vec2(Director::getInstance()->getVisibleSize().width / 2, heroInfoUI->getContentSize().height / 2 - 5));
 	scene->addChild(heroInfoUI);
+	GameInfo::getInstance()->m_heroUI = heroInfoUI;
 
 	return scene;
 }
@@ -22,27 +23,46 @@ bool BattleScene2::init()
 	auto visibleSize = Director::getInstance()->getVisibleSize();
 	Vec2 origin = Director::getInstance()->getVisibleOrigin();
 	Director::getInstance()->setContentScaleFactor(1);
-	BattleManager::getInstance()->battleScene = this;
-	BattleManager::getInstance()->m_inBattleNum = 2;
-	loadResource();
+	GameInfo::getInstance()->battleScene = this;
+	GameInfo::getInstance()->m_inBattleNum = 2;
+	loadAllResource();
 
 	auto myHero = Hero::create();			//´´½¨Ó¢ÐÛ
 	myHero->setPosition(Vec2(110, 80));
-	this->addChild(myHero, 5);
+	this->addChild(myHero, 3);
 	myHero->setScaleX(-1);
 	myHero->setName("hero");
-	BattleManager::getInstance()->m_hero = myHero;
+	GameInfo::getInstance()->m_hero = myHero;
 
-	auto bg = Sprite::create("Scene1/image259.jpg");
-	bg->setPosition(visibleSize / 2);
-	this->addChild(bg, -1);
+	auto bg1 = Sprite::create("Scene1/image259.jpg");
+	bg1->setPosition(visibleSize / 2);
+	this->addChild(bg1, -1);
+	Battle2Manager::getInstance()->m_bg1 = bg1;
+
+	//auto tank = Tank::create();
+	//tank->setPosition(400, 100);
+	//bg1->addChild(tank);
+
+	//auto mine = Landmine::create();
+	//mine->setPosition(400, 70);
+
+	//createMotorBike(1);
+	
+	auto bg2 = Sprite::create("Scene1/image261.jpg");
+	bg2->setPosition(Vec2(560, 0) + visibleSize / 2);
+	this->addChild(bg2, -1);
+	Battle2Manager::getInstance()->m_bg2 = bg2;
+
+	auto hostage1 = Hostage::create();
+	bg2->addChild(hostage1);
+	hostage1->setPosition(Vec2(100, 120));
 
 	auto lis = EventListenerKeyboard::create();						//¼üÅÌ¼àÌýÆ÷
 	lis->onKeyPressed = CC_CALLBACK_2(BattleScene2::pressKeyCallback, this);
 	lis->onKeyReleased = CC_CALLBACK_2(BattleScene2::releaseKeyCallback, this);
 	_eventDispatcher->addEventListenerWithSceneGraphPriority(lis, this);
 
-	scheduleUpdate();
+	schedule(CC_CALLBACK_1(BattleScene2::update1, this), 1.0f / 60, "update1");
 
 	return 1;
 }
@@ -122,7 +142,7 @@ void BattleScene2::releaseKeyCallback(EventKeyboard::KeyCode code, Event* evt)
 	}
 }
 
-void BattleScene2::loadResource()
+void BattleScene2::loadAllResource()
 {
 	if (AnimationCache::getInstance()->getAnimation("bomb") == nullptr)		//¼ÓÔØÊÖÀ×±¬Õ¨¶¯»­
 	{
@@ -134,9 +154,10 @@ void BattleScene2::loadResource()
 		}
 		AnimationCache::getInstance()->addAnimation(bombAnimation, "bomb");
 	}
+
+	SpriteFrameCache::getInstance()->addSpriteFramesWithFile("enemy1/EnemyDead.plist");
 	if (AnimationCache::getInstance()->getAnimation("dead1") == nullptr)
 	{
-		SpriteFrameCache::getInstance()->addSpriteFramesWithFile("enemy1/EnemyDead.plist");
 		Vector<SpriteFrame*>vDead;
 		for (int i = 0; i < 11; ++i)
 		{
@@ -169,7 +190,101 @@ void BattleScene2::loadResource()
 	}
 }
 
-void BattleScene2::update(float dt)
+void BattleScene2::update1(float dt)
 {
+	{
+		auto hero = GameInfo::getInstance()->m_hero;
+		auto bg1 = (Sprite*)Battle2Manager::getInstance()->m_bg1;
+		auto bg2 = (Sprite*)Battle2Manager::getInstance()->m_bg2;
+		if (hero->getPositionX() + HeroInfo::getInstance()->m_speed > 250 && HeroInfo::getInstance()->m_towardX_state == 1)
+		{
+			bg1->setPositionX(bg1->getPositionX() - HeroInfo::getInstance()->m_speed);
+			bg2->setPositionX(bg2->getPositionX() - HeroInfo::getInstance()->m_speed);
+		}
+		if (bg1->getPositionX() <= -280 && Battle2Manager::getInstance()->m_bg1_num < 4)
+		{
+			++Battle2Manager::getInstance()->m_bg1_num;
+			bg1->removeAllChildren();
+			auto fileName = StringUtils::format("Scene1/image%d.jpg", 259 + 4 * (Battle2Manager::getInstance()->m_bg1_num - 1));
+			bg1->initWithFile(fileName);
+			bg1->setPositionX(bg2->getPositionX() + 560);
+			switch (Battle2Manager::getInstance()->m_bg1_num)
+			{
+			case 2:
+				break;
+			case 3:
+				break;
+			default:
+				break;
+			}
+		}
+		else if (bg2->getPositionX() <= -280 && Battle2Manager::getInstance()->m_bg2_num < 3)
+		{
+			++Battle2Manager::getInstance()->m_bg2_num;
+			bg2->removeAllChildren();
+			auto fileName = StringUtils::format("Scene1/image%d.jpg", 261 + 4 * (Battle2Manager::getInstance()->m_bg2_num - 1));
+			bg2->initWithFile(fileName);
+			bg2->setPositionX(bg1->getPositionX() + 560);
+			switch (Battle2Manager::getInstance()->m_bg2_num)
+			{
+			case 2:
+				break;
+			case 3:
+				break;
+			default:
+				break;
+			}
+		}
+		else if (bg2->getPositionX() <= -280 && Battle2Manager::getInstance()->m_bg2_num == 3)
+		{
+			++Battle2Manager::getInstance()->m_bg2_num;
 
+			bg2->removeAllChildren();
+			bg2->initWithFile("Scene1/image273.jpg");
+			bg2->setPositionX(bg1->getPositionX() + 670);
+
+			auto heroplane = Heroplane::create();
+			bg2->addChild(heroplane);
+			heroplane->setPosition(400, 100);
+		}
+		if (Battle2Manager::getInstance()->m_bg2_num == 4 && bg1->getPositionX() <= -280)
+		{
+			unschedule("update1");
+			_eventDispatcher->removeEventListenersForTarget(this, 0);
+
+		}
+	}
+
+}
+
+void BattleScene2::createBombWave(Node* n)
+{
+	auto visibleSize = Director::getInstance()->getVisibleSize();
+	for (int i = 0; i < 5; ++i)
+	{
+		auto bomb = EnemyBomb::create();
+		bomb->initWithUmbrella();
+		n->addChild(bomb, 0);
+		bomb->setPosition(Vec2(n->getPositionX() - 160 + i * 80, n->getPositionY() + 200 + i * 20));
+		GameInfo::getInstance()->vEnemyBomb.pushBack(bomb);
+	}
+}
+
+void BattleScene2::createMotorBike(bool left)
+{
+	if (left)
+	{
+		auto motor = Motorbike::create();
+		this->addChild(motor, 4);
+		motor->setPosition(Vec2(-100, 100));
+		motor->setScaleX(-1);
+		motor->setSpeed(8);
+	}
+	else
+	{
+		auto motor = Motorbike::create();
+		this->addChild(motor, 4);
+		motor->setPosition(Vec2(600, 100));
+		motor->setSpeed(-8);
+	}
 }

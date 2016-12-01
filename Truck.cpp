@@ -30,19 +30,19 @@ bool Truck::init()
 	m_cannon = Cannon::create();
 	m_cannon->setPosition(Vec2(20, 100));
 	this->addChild(m_cannon);
-	BattleManager::getInstance()->m_Cannon = this->m_cannon;
+	Battle1Manager::getInstance()->m_Cannon = this->m_cannon;
 
-	if (BattleManager::getInstance()->m_inBattleNum == 0)
+	if (GameInfo::getInstance()->m_inBattleNum == 0)
 	{
 		auto moveCallback = CallFunc::create([this]()->void{
 			m_armature->getAnimation()->play("TruckMoving");
 			this->runAction(MoveBy::create(3, Vec2(500, 0)));
-			BattleManager::getInstance()->m_hero->runAction(MoveBy::create(3, Vec2(500, 0)));
+			GameInfo::getInstance()->m_hero->runAction(MoveBy::create(3, Vec2(500, 0)));
 		});
 		this->runAction(Sequence::create(DelayTime::create(2), moveCallback, nullptr));
 	}
 
-	if (BattleManager::getInstance()->m_inBattleNum == 1)
+	if (GameInfo::getInstance()->m_inBattleNum == 1)
 	{
 		m_armature->getAnimation()->play("TruckMoving");
 	}

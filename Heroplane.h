@@ -1,12 +1,13 @@
-#pragma once 
+#pragma once
 #include "cocos2d.h"
 #include "GameInfo.h"
 USING_NS_CC;
 
-class Item :public Node
+class Heroplane :public Node
 {
 public:
-	static Item* create();
+	static Heroplane* create();
 	bool init();
 private:
+
 };

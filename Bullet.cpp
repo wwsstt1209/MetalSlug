@@ -32,13 +32,17 @@ bool Bullet::init()
 
 void Bullet::update(float dt)
 {
-	static Rect wndRect = Rect{ 0, 65, Director::getInstance()->getVisibleSize().width, Director::getInstance()->getVisibleSize().height };
+	Rect wndRect;
+	if(GameInfo::getInstance()->m_inBattleNum == 1)
+		wndRect = Rect{ 0, 65, Director::getInstance()->getVisibleSize().width, Director::getInstance()->getVisibleSize().height };
+	else if(GameInfo::getInstance()->m_inBattleNum == 2)
+		wndRect = Rect{ 0, 0, Director::getInstance()->getVisibleSize().width, Director::getInstance()->getVisibleSize().height };
 	if (!wndRect.containsPoint(this->getPosition()))
 	{
-		if (m_ownToPlayer == 0 || m_ownToPlayer == 4)
-			BattleManager::getInstance()->vHeroBullet.eraseObject(this);
+		if (m_ownToPlayer)
+			GameInfo::getInstance()->vHeroBullet.eraseObject(this);
 		else
-			BattleManager::getInstance()->vEnemyBullet.eraseObject(this);
+			GameInfo::getInstance()->vEnemyBullet.eraseObject(this);
 		this->removeFromParent();
 	}
 }
@@ -65,11 +69,11 @@ void Bullet::initData(float speed, int toward)
 
 void Bullet::initEnemyBullet(float speed)
 {
-	if (BattleManager::getInstance()->m_hero)
+	if (GameInfo::getInstance()->m_hero)
 	{
 		m_ownToPlayer = 0;
 		m_speed = speed;
-		auto targetPos = BattleManager::getInstance()->m_hero->getPosition();
+		auto targetPos = GameInfo::getInstance()->m_hero->getPosition();
 		auto XY = Vec2(this->getPositionX() - targetPos.x, this->getPositionY() - targetPos.y);
 		auto rateX = XY.x / sqrt((XY.x*XY.x) + (XY.y*XY.y));
 		auto rateY = XY.y / sqrt((XY.x*XY.x) + (XY.y*XY.y));
@@ -89,7 +93,7 @@ void Bullet::initEnemyBullet(float speed)
 	}
 	else
 	{
-		BattleManager::getInstance()->vEnemyBullet.eraseObject(this);
+		GameInfo::getInstance()->vEnemyBullet.eraseObject(this);
 		this->removeFromParent();
 	}
 	schedule(CC_CALLBACK_1(Bullet::update1, this), 1.0f / 60, "enemyBullet");
@@ -130,7 +134,7 @@ void Bullet::initCannonBullet(int toward)
 	auto speedX = sin(rad) * m_speed;
 	auto speedY = cos(rad) * m_speed;
 	m_speedXY = Vec2(speedX, speedY);
-	auto hero = BattleManager::getInstance()->m_hero;
+	auto hero = GameInfo::getInstance()->m_hero;
 	this->setPosition(Vec2(hero->getPositionX(), hero->getPositionY()) + Vec2(0 + toward * 18, 80 - sqrt(toward*toward) * 10));
 	schedule(CC_CALLBACK_1(Bullet::update4, this), 1.0f / 60, "cannonBullet");
 }
@@ -186,4 +190,25 @@ void Bullet::update3(float dt)
 void Bullet::update4(float dt)
 {
 	this->setPosition(Vec2(this->getPositionX() + m_speedXY.x, this->getPositionY() + m_speedXY.y));
+}
+
+void Bullet::initByTank(float speed)
+{
+	m_bulletSprite = Sprite::create("image2969.png");
+	auto callback1 = CallFunc::create([this]()->void {
+		m_bulletSprite->initWithFile("image2971.png");
+	});
+	auto callback2 = CallFunc::create([this]()->void {
+		m_bulletSprite->initWithFile("image2969.png");
+	});
+	this->addChild(m_bulletSprite);
+	GameInfo::getInstance()->vEnemyBullet.pushBack(this);
+	m_bulletSprite->runAction(RepeatForever::create(Sequence::create(callback1, DelayTime::create(0.5), callback2, DelayTime::create(0.5), nullptr)));
+	m_speed = speed;
+	schedule(CC_CALLBACK_1(Bullet::update5, this), 1.0f / 60, "tankBullet");
+}
+
+void Bullet::update5(float dt)
+{
+	this->setPositionX(this->getPositionX() - m_speed);
 }

@@ -41,32 +41,43 @@ void Bomb::setBombData(float speedUp)
 void Bomb::update(float dt)
 {
 	float height = 0;
-	if (m_right)
+	if (GameInfo::getInstance()->m_inBattleNum == 1)
 	{
-		if (m_startPos.x + 90 > 370 && m_startPos.x + 90 < 440)
-			height = 105;
-		else if (m_startPos.x + 90 > 440)
-			height = 0;
+		if (m_right)
+		{
+			if (m_startPos.x + 90 > 370 && m_startPos.x + 90 < 440)
+				height = 105;
+			else if (m_startPos.x + 90 > 440)
+				height = 0;
+			else
+				height = 160;
+		}
 		else
-			height = 160;
+		{
+			if (m_startPos.x - 90 < 110)
+				height = 0;
+			else
+				height = 160;
+		}
 	}
-	else
+	else if (GameInfo::getInstance()->m_inBattleNum == 2)
 	{
-		if (m_startPos.x - 90 < 110)
-			height = 0;
-		else
-			height = 160;
+		height = 80;
+		if (HeroInfo::getInstance()->m_towardX_state == 1)
+		{
+			this->setPositionX(this->getPositionX() - HeroInfo::getInstance()->m_speed);
+		}
 	}
 	if (isFlying)
 	{
 		if (m_right)
 		{
-			this->setPosition(Vec2(this->getPositionX() + 3, this->getPositionY() + m_speedUp));
+			this->setPosition(Vec2(this->getPositionX() + 5, this->getPositionY() + m_speedUp));
 			m_bomb->setRotation(m_bomb->getRotation() + 180 * dt * 2);
 		}
 		else
 		{
-			this->setPosition(Vec2(this->getPositionX() - 3, this->getPositionY() + m_speedUp));
+			this->setPosition(Vec2(this->getPositionX() - 5, this->getPositionY() + m_speedUp));
 			m_bomb->setRotation(m_bomb->getRotation() - 180 * dt * 2);
 		}
 		--m_speedUp;

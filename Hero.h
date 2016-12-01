@@ -3,7 +3,7 @@
 #include "Launcher.h"
 #include "Bomb.h"
 #include "HeroInfo.h"
-#include "BattleManager.h"
+#include "GameInfo.h"
 #include "cocostudio\CocoStudio.h"
 USING_NS_CC;
 using namespace cocostudio;
@@ -22,6 +22,7 @@ public:
 	void armatureCallback(Armature *armature, MovementEventType movementType, const std::string& movementID);
 	void escapeFromTruck();
 	void getIntoTruck();
+	void getIntoHeroPlane();
 private:
 	Armature* m_armature = nullptr;
 	Launcher* m_launcher = nullptr;

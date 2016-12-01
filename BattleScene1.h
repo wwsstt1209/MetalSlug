@@ -1,12 +1,7 @@
 #pragma once
 #include "cocos2d.h"
 #include "SceneManager.h"
-#include "Hero.h"
-#include "Enemy.h"
-#include "Truck.h"
-#include "EnemyPlane1.h"
-#include "EnemyPlane2.h"
-#include "Boss.h"
+#include "Battle1Manager.h"
 USING_NS_CC;
 
 class BattleScene1 :public Layer

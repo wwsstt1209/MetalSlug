@@ -78,20 +78,20 @@ void Hero::update(float dt)
 	{
 		if (heroInfo->m_towardX_state == 0)
 			heroInfo->m_act = STAND;
-		if (BattleManager::getInstance()->m_inBattleNum == 1)
+		if (GameInfo::getInstance()->m_inBattleNum == 1)
 		{
 			if (heroInfo->m_towardX_state == 1)
 			{
-				if (BattleManager::getInstance()->m_inBattleNum == 1 && this->getPositionX() > 440)
+				if (this->getPositionX() > 440)
 					this->runAction(MoveBy::create(0.5, Vec2(0, -80)));
-				if (BattleManager::getInstance()->m_inBattleNum == 1 && this->getPositionX() > 370 && this->getPositionY() > 115 && this->getPositionX() - heroInfo->m_speed <= 370)
+				else if(this->getPositionX() > 370 && this->getPositionY() > 115 && this->getPositionX() - heroInfo->m_speed <= 370)
 					this->runAction(MoveBy::create(0.1, Vec2(0, -55)));
 			}
 			if (heroInfo->m_towardX_state == 2)
 			{
-				if (BattleManager::getInstance()->m_inBattleNum == 1 && this->getPositionX() < 110)
+				if (this->getPositionX() < 110)
 					this->runAction(MoveBy::create(0.8, Vec2(0, -100)));
-				if (BattleManager::getInstance()->m_inBattleNum == 1 && this->getPositionY() < 170 && this->getPositionX() <= 370 && this->getPositionX() >= 110)
+				else if(this->getPositionY() < 170 && this->getPositionX() <= 370 && this->getPositionX() >= 110)
 					this->setPositionX(371);
 			}
 		}
@@ -154,28 +154,39 @@ void Hero::update(float dt)
 	{
 		if (heroInfo->m_act != ONCANNON)
 		{
-			this->setPositionX(this->getPositionX() - heroInfo->m_speed);
 			this->setScaleX(1);
+			if (GameInfo::getInstance()->m_inBattleNum == 2)
+			{
+				if (this->getPositionX() - heroInfo->m_speed < 30)
+					return;
+			}
+			this->setPositionX(this->getPositionX() - heroInfo->m_speed);
 		}
 	}
 	if (heroInfo->m_towardX_state == 1)
 	{
 		if (heroInfo->m_act != ONCANNON)
 		{
-			this->setPositionX(this->getPositionX() + heroInfo->m_speed);
 			this->setScaleX(-1);
+			if (GameInfo::getInstance()->m_inBattleNum == 2)
+			{
+
+				if (this->getPositionX() + heroInfo->m_speed > 250)
+					return;
+			}
+			this->setPositionX(this->getPositionX() + heroInfo->m_speed);
 		}
 	}
 
 	Rect wndRect;
-	if(BattleManager::getInstance()->m_inBattleNum == 1)
+	if (GameInfo::getInstance()->m_inBattleNum == 1)
 		wndRect = { 0, 60, Director::getInstance()->getVisibleSize().width, Director::getInstance()->getVisibleSize().height };
 	else
 		wndRect = { 0, 0, Director::getInstance()->getVisibleSize().width, Director::getInstance()->getVisibleSize().height };
-	if (!wndRect.containsPoint(this->getPosition()) && BattleManager::getInstance()->m_inBattleNum)
+	if (!wndRect.containsPoint(this->getPosition()) && GameInfo::getInstance()->m_inBattleNum)
 	{
 		this->stopAllActions();
-		BattleManager::getInstance()->m_hero = nullptr;
+		GameInfo::getInstance()->m_hero = nullptr;
 		this->removeFromParent();
 	}
 }
@@ -186,7 +197,7 @@ void Hero::jump()
 	this->setPositionY(this->getPositionY() + heroInfo->m_speedUp);
 	--heroInfo->m_speedUp;
 
-	if(BattleManager::getInstance()->m_inBattleNum == 1)
+	if (GameInfo::getInstance()->m_inBattleNum == 1)
 	{
 		float height = 0;
 		if (this->getPositionX() >= 110 && this->getPositionX() < 368)
@@ -217,7 +228,7 @@ void Hero::jump()
 			heroInfo->m_act = MOVE;
 		}
 	}
-	if (BattleManager::getInstance()->m_inBattleNum == 2)
+	if (GameInfo::getInstance()->m_inBattleNum == 2)
 	{
 		if (this->getPositionY() <= 80 && heroInfo->m_speedUp <= 0)
 		{
@@ -500,11 +511,11 @@ void Hero::throwBomb()
 	}
 	//´´½¨ÊÖÀ×Âß¼­
 	auto bomb = Bomb::create();
-	auto posInLayer = BattleManager::getInstance()->battleScene->convertToWorldSpace(this->getPosition());
+	auto posInLayer = GameInfo::getInstance()->battleScene->convertToWorldSpace(this->getPosition());
 	bomb->setPosition(posInLayer + Vec2(20,55));
 	bomb->setBombData(15);
-	BattleManager::getInstance()->battleScene->addChild(bomb);
-	BattleManager::getInstance()->vHeroBomb.pushBack(bomb);
+	GameInfo::getInstance()->battleScene->addChild(bomb);
+	GameInfo::getInstance()->vHeroBomb.pushBack(bomb);
 }
 
 void Hero::armatureCallback(Armature *armature, MovementEventType movementType, const std::string& movementID)
@@ -599,4 +610,10 @@ void Hero::getIntoTruck()
 		m_armature->getAnimation()->play("stand_stop_handgun_LR");
 	});
 	this->runAction(Sequence::create(moveCallback, DelayTime::create(1), jumpCallback1, DelayTime::create(0.5), jumpCallback2, DelayTime::create(0.5), standCallback, nullptr));
+}
+
+void Hero::getIntoHeroPlane()
+{
+	unscheduleUpdate();
+	m_armature->getAnimation()->play("jump_normal_handgun_LR");
 }

@@ -1,7 +1,7 @@
 #pragma once 
 #include "cocos2d.h"
 #include "HeroInfo.h"
-#include "BattleManager.h"
+#include "GameInfo.h"
 USING_NS_CC;
 
 class Bullet :public Node
@@ -20,6 +20,8 @@ public:
 	void update3(float dt);
 	void initCannonBullet(int toward);
 	void update4(float dt);
+	void initByTank(float speed);
+	void update5(float dt);
 private:
 	bool m_ownToPlayer;
 	float m_speed;

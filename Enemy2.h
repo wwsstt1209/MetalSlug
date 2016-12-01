@@ -1,12 +1,13 @@
-#pragma once 
+#pragma once
 #include "cocos2d.h"
 #include "GameInfo.h"
 USING_NS_CC;
 
-class Item :public Node
+class Enemy2 :public Node
 {
 public:
-	static Item* create();
+	static Enemy2* create();
 	bool init();
 private:
+
 };

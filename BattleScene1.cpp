@@ -22,8 +22,8 @@ bool BattleScene1::init()
 	auto visibleSize = Director::getInstance()->getVisibleSize();
 	Vec2 origin = Director::getInstance()->getVisibleOrigin();
 	Director::getInstance()->setContentScaleFactor(1);
-	BattleManager::getInstance()->battleScene = this;
-	BattleManager::getInstance()->m_inBattleNum = 1;
+	GameInfo::getInstance()->battleScene = this;
+	GameInfo::getInstance()->m_inBattleNum = 1;
 	//loadEnemyDeadResource();
 
 	auto bombAnimation = Animation::create();							//加载手雷爆炸动画
@@ -49,7 +49,7 @@ bool BattleScene1::init()
 	this->addChild(myHero, 5);
 	myHero->setScaleX(-1);
 	myHero->setName("hero");
-	BattleManager::getInstance()->m_hero = myHero;
+	GameInfo::getInstance()->m_hero = myHero;
 
 	auto truck = Truck::create();				//卡车
 	truck->setPosition(Vec2(-50, -120) + visibleSize / 2);
@@ -190,6 +190,7 @@ void BattleScene1::update(float dt)
 {
 	//Color3B transitColor = { 255, 255, 255 };
 	//Director::getInstance()->replaceScene(CCTransitionFade::create(4.0f, SceneManager::getInstance()->getDeadScene(), transitColor));
+	auto gameInfo = GameInfo::getInstance();
 	{
 		static Node* bg1 = this->getChildByName("bg1");
 		static Node* bg2 = this->getChildByName("bg2");
@@ -204,51 +205,59 @@ void BattleScene1::update(float dt)
 			bg2->setPositionX(Director::getInstance()->getVisibleSize().width + bg2->getContentSize().width / 2);
 		}
 	}
-	if (BattleManager::getInstance()->vEnemy.size() == 0 && !m_startCreateEnemy && !m_sceneEnd)
+	if (gameInfo->vEnemy.size() == 0 && !m_startCreateEnemy && !m_sceneEnd)
 	{
 		m_startCreateEnemy = 1;
 		schedule(CC_CALLBACK_0(BattleScene1::createNewEnemyWave, this), 3, "createEnemy");
 	}
-	if (BattleManager::getInstance()->m_airEnemyWave == 2)
+	if (Battle1Manager::getInstance()->m_airEnemyWave == 2)
 	{
 		//创建发射导弹飞机
 		auto plane = EnemyPlane1::create();
 		this->addChild(plane, 2);
 		plane->setPosition(450, 500);
 		plane->runAction(MoveBy::create(2, Vec2(0, -150)));
-		++BattleManager::getInstance()->m_airEnemyWave;
+		GameInfo::getInstance()->vEnemy.pushBack(plane);
+		++Battle1Manager::getInstance()->m_airEnemyWave;
 	}
-	else if (BattleManager::getInstance()->m_airEnemyWave == 5)
+	else if (Battle1Manager::getInstance()->m_airEnemyWave == 5)
 	{
 		//创建发射子弹飞机
 		auto plane = EnemyPlane2::create();
 		this->addChild(plane, 3);
 		plane->setPosition(200, 550);
 		plane->runAction(MoveBy::create(2, Vec2(0, -150)));
-		++BattleManager::getInstance()->m_airEnemyWave;
+		GameInfo::getInstance()->vEnemy.pushBack(plane);
+		++Battle1Manager::getInstance()->m_airEnemyWave;
 	}
-	else if (BattleManager::getInstance()->m_airEnemyWave == 7)
+	else if (Battle1Manager::getInstance()->m_airEnemyWave == 7)
 	{
 		//掉落炸弹
 		createNewBombWave();
-		++BattleManager::getInstance()->m_airEnemyWave;
+		++Battle1Manager::getInstance()->m_airEnemyWave;
 	}
-	else if (BattleManager::getInstance()->m_airEnemyWave == 9 && BattleManager::getInstance()->vEnemy.size() == 0)
+	else if (Battle1Manager::getInstance()->m_airEnemyWave == 9)
 	{
 		//创建一个飞机炸毁卡车并进入P2
-		m_sceneEnd = 1;
-		unschedule("createEnemy");
-		auto boss = Boss::create();
-		this->addChild(boss, 4);
-		boss->setPosition(Vec2(-150, 350));
-		auto releaseCallback = CallFunc::create([boss]()->void{
-			BattleManager::getInstance()->m_airEnemyWave = 0;
-			boss->removeFromParent();
-		});
-		boss->runAction(Sequence::create(MoveBy::create(5, Vec2(1000, 0)), releaseCallback, nullptr));
-		boss->breakTruck();
-		scheduleOnce(CC_CALLBACK_0(BattleScene1::escapeFromTruck, this), 4, "escape");
-		++BattleManager::getInstance()->m_airEnemyWave;
+		if (!m_sceneEnd)
+		{
+			m_sceneEnd = 1;
+			unschedule("createEnemy");
+		}
+		if (gameInfo->vEnemy.size() == 0)
+		{
+			auto boss = Boss::create();
+			this->addChild(boss, 4);
+			boss->setPosition(Vec2(-150, 350));
+			auto releaseCallback = CallFunc::create([boss]()->void{
+				Battle1Manager::getInstance()->m_airEnemyWave = 0;
+				boss->removeFromParent();
+			});
+			boss->runAction(Sequence::create(MoveBy::create(5, Vec2(1000, 0)), releaseCallback, nullptr));
+			boss->breakTruck();
+			scheduleOnce(CC_CALLBACK_0(BattleScene1::escapeFromTruck, this), 4, "escape");
+			++Battle1Manager::getInstance()->m_airEnemyWave;
+		}
 	}
 	{
 		++m_timer;
@@ -281,9 +290,9 @@ void BattleScene1::createNewEnemyWave()
 		wave = 0;
 		m_startCreateEnemy = 0;
 		unschedule("createEnemy");
-		++BattleManager::getInstance()->m_airEnemyWave;
+		++Battle1Manager::getInstance()->m_airEnemyWave;
 	}
-	BattleManager::getInstance()->vEnemy.pushBack(enemy);
+	GameInfo::getInstance()->vEnemy.pushBack(enemy);
 }
 
 void BattleScene1::createNewBombWave()
@@ -293,14 +302,15 @@ void BattleScene1::createNewBombWave()
 	{
 		auto bomb = EnemyBomb::create();
 		this->addChild(bomb,0);
+		bomb->initWithUmbrella();
 		bomb->setPosition(Vec2(visibleSize.width / 2 - 160 + i * 80, visibleSize.height + 100 + i * 20));
-		BattleManager::getInstance()->vEnemyBomb.pushBack(bomb);
+		GameInfo::getInstance()->vEnemyBomb.pushBack(bomb);
 	}
 }
 
 void BattleScene1::escapeFromTruck()
 {
-	auto hero = BattleManager::getInstance()->m_hero;
+	auto hero = GameInfo::getInstance()->m_hero;
 	_eventDispatcher->removeEventListenersForTarget(this, 0);
 	((Hero*)hero)->escapeFromTruck();
 	scheduleOnce(CC_CALLBACK_0(BattleScene1::runBattleScene2, this), 4, "runScene2");
@@ -308,6 +318,6 @@ void BattleScene1::escapeFromTruck()
 
 void BattleScene1::runBattleScene2()
 {
-	BattleManager::getInstance()->m_hero->removeFromParent();
+	GameInfo::getInstance()->m_hero->removeFromParent();
 	Director::getInstance()->replaceScene(TransitionPageTurn::create(2, SceneManager::getInstance()->getBattleScene2(), 0));
 }

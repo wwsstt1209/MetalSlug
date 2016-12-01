@@ -1,10 +1,11 @@
 #pragma once
 #include "cocos2d.h"
 #include "Cannon.h"
-#include "BattleManager.h"
+#include "GameInfo.h"
+#include "Battle1Manager.h"
 #include "cocostudio\CocoStudio.h"
-USING_NS_CC;
 using namespace cocostudio;
+USING_NS_CC;
 
 class Truck :public Node
 {

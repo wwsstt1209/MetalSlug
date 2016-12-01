@@ -56,6 +56,7 @@ void Cannon::updateCannon(bool left)
 
 void Cannon::resetCannon()
 {
+	fire(0);
 	m_toward = 0;
 	spr1->initWithFile("onCanon/image2014.png");
 }
@@ -82,6 +83,6 @@ void Cannon::fireUpdate()
 {
 	auto b = Bullet::create();
 	b->initCannonBullet(m_toward);
-	BattleManager::getInstance()->battleScene->addChild(b, 1);
-	BattleManager::getInstance()->vHeroBullet.pushBack(b);
+	GameInfo::getInstance()->battleScene->addChild(b, 1);
+	GameInfo::getInstance()->vHeroBullet.pushBack(b);
 }

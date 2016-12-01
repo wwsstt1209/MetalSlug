@@ -58,6 +58,6 @@ void Boss::breakTruckUpdate()
 {
 	auto bomb = EnemyBomb::create();
 	bomb->initBreakTruck();
-	BattleManager::getInstance()->battleScene->addChild(bomb, 4);
+	GameInfo::getInstance()->battleScene->addChild(bomb, 4);
 	bomb->setPosition(this->getPosition());
 }

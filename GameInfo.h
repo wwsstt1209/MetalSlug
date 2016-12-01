@@ -1,4 +1,6 @@
 #pragma once
+#include "cocos2d.h"
+USING_NS_CC;
 
 class GameInfo
 {
@@ -7,6 +9,15 @@ public:
 	int getScore() { return m_score; };
 	int getHeroLife() { return m_heroLife; };
 	void heroDead();
+	Node* m_hero;
+	Node* m_heroUI;
+	Vector<Node*>vHeroBullet;
+	Vector<Node*>vEnemyBullet;
+	Vector<Node*>vHeroBomb;
+	Vector<Node*>vEnemyBomb;
+	Vector<Node*>vEnemy;
+	Layer* battleScene;
+	int m_inBattleNum;
 private:
 	GameInfo();
 	~GameInfo() {};

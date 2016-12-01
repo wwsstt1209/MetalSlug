@@ -1,5 +1,6 @@
+#pragma once
 #include "cocos2d.h"
-#include "BattleManager.h"
+#include "GameInfo.h"
 #include "Bullet.h"
 #include "EnemyBomb.h"
 USING_NS_CC;

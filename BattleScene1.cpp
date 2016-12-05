@@ -301,7 +301,6 @@ void BattleScene1::createNewBombWave()
 		this->addChild(bomb,0);
 		bomb->initWithUmbrella();
 		bomb->setPosition(Vec2(visibleSize.width / 2 - 160 + i * 80, visibleSize.height + 100 + i * 20));
-		GameInfo::getInstance()->vEnemyBomb.pushBack(bomb);
 	}
 }
 

@@ -39,6 +39,8 @@ bool Tank::init()
 	m_3->setPosition(Vec2(60, 40));
 	m_4->setPosition(Vec2(15, 65));
 
+	m_rect = { -80, -80, 160, 160 };
+
 	auto m3callbakc1 = CallFunc::create([this]()->void{
 		m_3->initWithFile("image2913.png");
 	});
@@ -46,14 +48,6 @@ bool Tank::init()
 		m_3->initWithFile("image2921.png");
 	});
 	m_3->runAction(RepeatForever::create(Sequence::create(m3callbakc1, DelayTime::create(0.1), m3callbakc2, DelayTime::create(0.1), nullptr)));
-
-	//auto m0callbakc1 = CallFunc::create([this]()->void{
-	//	m_0->initWithFile("image2908.png");
-	//});
-	//auto m0callbakc2 = CallFunc::create([this]()->void{
-	//	m_0->initWithFile("image2923.png");
-	//});
-	//m_0->runAction(RepeatForever::create(Sequence::create(m0callbakc1, DelayTime::create(0.1), m0callbakc2, DelayTime::create(0.1), nullptr)));
 
 	scheduleUpdate();
 	schedule(CC_CALLBACK_1(Tank::shootUpdate, this), 3, "tankShoot");
@@ -63,12 +57,23 @@ bool Tank::init()
 
 void Tank::shootUpdate(float dt)
 {
-	auto b = Bullet::create();
-	b->setPosition(Vec2(-60, 30) + this->getPosition());
-	b->initByTank(5);
+	auto posInWorld = this->convertToWorldSpace(Vec2::ZERO);
+	auto posInScene = GameInfo::getInstance()->battleScene->convertToNodeSpace(posInWorld);
+	if (posInScene.x < 600)
+	{
+		auto b = Bullet::create();
+		b->setPosition(Vec2(-60, 30) + posInScene);
+		b->initByTank(5);
+	}
 }
 
 void Tank::update(float dt)
 {
-
+	auto posInWorld = this->convertToWorldSpace(Vec2::ZERO);
+	auto posInScene = GameInfo::getInstance()->battleScene->convertToNodeSpace(posInWorld);
+	if (posInScene.x < -100)
+	{
+		GameInfo::getInstance()->vEnemy.eraseObject(this);
+		this->removeFromParent();
+	}
 }

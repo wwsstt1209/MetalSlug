@@ -9,6 +9,7 @@ public:
 	static Launcher* create();
 	bool init();
 	void initData(int gunType);
+	void initByHeroPlane();
 	void shoot(int toward);
 	void showShootEffect(int toward);
 private:

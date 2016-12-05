@@ -207,6 +207,7 @@ void Bullet::initByTank(float speed)
 	GameInfo::getInstance()->vEnemyBullet.pushBack(this);
 	GameInfo::getInstance()->battleScene->addChild(this, 0);
 	m_bulletSprite = Sprite::create("image2969.png");
+	m_ownToPlayer = 0;
 	auto callback1 = CallFunc::create([this]()->void {
 		m_bulletSprite->initWithFile("image2971.png");
 	});
@@ -227,7 +228,7 @@ void Bullet::update5(float dt)
 void Bullet::initEnemy2Bullet(float speedX)
 {
 	GameInfo::getInstance()->vEnemyBullet.pushBack(this);
-	GameInfo::getInstance()->battleScene->addChild(this);
+	GameInfo::getInstance()->battleScene->addChild(this, 1);
 	if (GameInfo::getInstance()->m_hero)
 	{
 		m_ownToPlayer = 0;

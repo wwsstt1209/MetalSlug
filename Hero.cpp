@@ -615,5 +615,5 @@ void Hero::getIntoTruck()
 void Hero::getIntoHeroPlane()
 {
 	unscheduleUpdate();
-	m_armature->getAnimation()->play("jump_normal_handgun_LR");
+	this->removeFromParent();
 }

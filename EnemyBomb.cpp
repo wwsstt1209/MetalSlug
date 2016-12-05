@@ -47,11 +47,14 @@ bool EnemyBomb::init()
 		AnimationCache::getInstance()->addAnimation(ani, "eBombExplode");
 	}
 
+	GameInfo::getInstance()->vEnemyBomb.pushBack(this);
+
 	return 1;
 }
 
 void EnemyBomb::initWithUmbrella()
 {
+	GameInfo::getInstance()->vEnemyBomb.pushBack(this);
 
 	m_bomb = Sprite::create("enemyBomb/image711.png");
 	this->addChild(m_bomb);

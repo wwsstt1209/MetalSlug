@@ -17,4 +17,5 @@ private:
 	Sprite* m_2 = nullptr;
 	Sprite* m_3 = nullptr;
 	Sprite* m_4 = nullptr;
+	Rect m_rect;
 };

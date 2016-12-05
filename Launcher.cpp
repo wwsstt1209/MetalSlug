@@ -78,6 +78,11 @@ void Launcher::shoot(int toward)
 	}
 }
 
+void Launcher::initByHeroPlane()
+{
+
+}
+
 void Launcher::showShootEffect(int toward)
 {
 

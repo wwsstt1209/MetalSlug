@@ -16,5 +16,6 @@ public:
 	void createBombWave(Node*);
 	void createMotorBike();
 	void createLandMines(int number, float startX, Node* n);
+	void runBattleScene3();
 	CREATE_FUNC(BattleScene2);
 };

@@ -45,8 +45,6 @@ bool BattleScene2::init()
 	auto h2 = Hostage::create();
 	h2->setPosition(350, 120);
 	bg1->addChild(h2);
-
-	//createMotorBike(1);
 	
 	auto bg2 = Sprite::create("Scene1/image261.jpg");
 	bg2->setPosition(Vec2(560, 0) + visibleSize / 2);
@@ -224,6 +222,10 @@ void BattleScene2::update1(float dt)
 		{
 			bg1->setPositionX(bg1->getPositionX() - HeroInfo::getInstance()->m_speed);
 			bg2->setPositionX(bg2->getPositionX() - HeroInfo::getInstance()->m_speed);
+			for (auto b : GameInfo::getInstance()->vEnemyBullet)
+			{
+				b->setPositionX(b->getPositionX() - HeroInfo::getInstance()->m_speed);
+			}
 		}
 		if (bg1->getPositionX() <= -280 && Battle2Manager::getInstance()->m_bg1_num < 4)
 		{
@@ -237,7 +239,7 @@ void BattleScene2::update1(float dt)
 			case 2://3
 			{
 				auto plane = EnemyPlane2::create();
-				this->addChild(plane);
+				GameInfo::getInstance()->battleScene->addChild(plane);
 				plane->setPosition(200, 550);
 				plane->runAction(MoveBy::create(2, Vec2(0, -200)));
 
@@ -248,19 +250,13 @@ void BattleScene2::update1(float dt)
 				break;
 			case 3://5
 			{
-				auto enemy = Enemy2::create();
-				bg1->addChild(enemy);
-				enemy->setPosition(300, 100);
-
-				auto enemy2 = Enemy2::create();
-				bg1->addChild(enemy);
-				enemy->setPosition(200, 100);
+				createBombWave(bg1);
+				createLandMines(3, 100, bg1);
+				createMotorBike();
 
 				auto tank = Tank::create();
-				tank->setPosition(400, 100);
 				bg1->addChild(tank);
-
-				createMotorBike();
+				tank->setPosition(450, 100);
 			}
 				break;
 			default:
@@ -278,13 +274,19 @@ void BattleScene2::update1(float dt)
 			{
 			case 2://4
 			{
-				createBombWave(bg2);
-				createLandMines(3, 100, bg2);
-				createMotorBike();
+					auto enemy = Enemy2::create();
+					bg2->addChild(enemy);
+					enemy->setPosition(300, 100);
 
-				auto tank = Tank::create();
-				tank->setPosition(400, 100);
-				bg2->addChild(tank);
+					auto enemy2 = Enemy2::create();
+					bg2->addChild(enemy2);
+					enemy2->setPosition(200, 100);
+
+					auto tank = Tank::create();
+					bg2->addChild(tank);
+					tank->setPosition(450, 100);
+
+					createMotorBike();
 			}
 				break;
 			case 3://6
@@ -294,8 +296,8 @@ void BattleScene2::update1(float dt)
 				enemy->setPosition(300, 100);
 
 				auto enemy2 = Enemy2::create();
-				bg2->addChild(enemy);
-				enemy->setPosition(200, 100);
+				bg2->addChild(enemy2);
+				enemy2->setPosition(200, 100);
 
 				auto plane = EnemyPlane2::create();
 				this->addChild(plane);
@@ -319,14 +321,36 @@ void BattleScene2::update1(float dt)
 			bg2->setPositionX(bg1->getPositionX() + 670);
 
 			auto heroplane = Heroplane::create();
-			bg2->addChild(heroplane);
-			heroplane->setPosition(400, 100);
+			bg2->addChild(heroplane, 1);
+			heroplane->setName("heroplane");
+			heroplane->setPosition(400, 120);
+
+			//可以在这加个boss
 		}
 		if (Battle2Manager::getInstance()->m_bg2_num == 4 && bg1->getPositionX() <= -280)
 		{
+			auto hero = (Hero*)(GameInfo::getInstance()->m_hero);
+			auto posHeroInBg2 = bg2->convertToNodeSpace(hero->getPosition());
+			auto heroplane = (Heroplane*)(bg2->getChildByName("heroplane"));
+			auto planePosInWorld = heroplane->convertToWorldSpace(Vec2(0, 0));
+
 			unschedule("update1");
 			_eventDispatcher->removeEventListenersForTarget(this, 0);
 
+			hero->getIntoHeroPlane();
+			auto fake = Sprite::create("heroplane/image1925.png");
+			bg2->addChild(fake, 0);
+			fake->setFlippedX(1);
+			fake->setPosition(posHeroInBg2);
+			auto hide = CallFunc::create([fake]()->void{
+				fake->removeFromParent();
+			});
+			fake->runAction(Sequence::create(JumpTo::create(0.8, planePosInWorld + Vec2(0, 5), 80, 1), DelayTime::create(0.7), hide, nullptr));
+			heroplane->go();
+
+			bg2->runAction(MoveTo::create(2, Vec2(170, 200)));
+
+			scheduleOnce(CC_CALLBACK_0(BattleScene2::runBattleScene3, this), 4.5, "runBattleScene3");
 		}
 	}
 
@@ -338,10 +362,10 @@ void BattleScene2::createBombWave(Node* n)
 	for (int i = 0; i < 5; ++i)
 	{
 		auto bomb = EnemyBomb::create();
+		bomb->setVisible(1);
 		bomb->initWithUmbrella();
-		n->addChild(bomb, 0);
-		bomb->setPosition(Vec2(n->getPositionX() - 160 + i * 80, n->getPositionY() + 200 + i * 20));
-		GameInfo::getInstance()->vEnemyBomb.pushBack(bomb);
+		n->addChild(bomb, 1);
+		bomb->setPosition(Vec2(160 + i * 80, 400 + i * 20));
 	}
 }
 
@@ -375,4 +399,10 @@ void BattleScene2::createLandMines(int number, float startX, Node* n)
 	}
 }
 
-//tank hostage landmine 出屏幕释放
+void BattleScene2::runBattleScene3()
+{
+	GameInfo::getInstance()->vEnemy.clear();
+	GameInfo::getInstance()->vEnemyBullet.clear();
+	GameInfo::getInstance()->vHeroBullet.clear();
+	Director::getInstance()->replaceScene(TransitionProgressInOut::create(1, SceneManager::getInstance()->getBattleScene3()));
+}

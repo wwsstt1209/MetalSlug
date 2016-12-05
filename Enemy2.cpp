@@ -36,22 +36,23 @@ void Enemy2::shoot()
 {
 	auto hero = GameInfo::getInstance()->m_hero;
 	auto posHeroInEnemy = this->convertToNodeSpaceAR(hero->getPosition());
+	auto posInWorld = this->convertToWorldSpace(Vec2::ZERO);
+	auto posInScene = GameInfo::getInstance()->battleScene->convertToNodeSpace(posInWorld);
 	if (fabs(posHeroInEnemy.x) <= 250)
 	{
 		auto b = Bullet::create();
-		GameInfo::getInstance()->battleScene->addChild(b, -1);
 		b->setScaleY(0.2);
 		if (posHeroInEnemy.x < 0)
 		{
 			m_sprite->setFlippedX(0);
 			b->initEnemy2Bullet(-5);
-			b->setPosition(Vec2(-20, 10) + this->getPosition());
+			b->setPosition(Vec2(-20, 10) + posInScene);
 		}
 		else
 		{
-			b->initEnemy2Bullet(5);
 			m_sprite->setFlippedX(1);
-			b->setPosition(Vec2(20, 10) + this->getPosition());
+			b->initEnemy2Bullet(5);
+			b->setPosition(Vec2(20, 10) + posInScene);
 		}
 		auto setStand = CallFunc::create([this]()->void{
 			m_sprite->runAction(RepeatForever::create(Animate::create(AnimationCache::getInstance()->getAnimation("enemyStand"))));
@@ -65,5 +66,11 @@ void Enemy2::shoot()
 
 void Enemy2::update(float dt)
 {
-	
+	auto posInWorld = this->convertToWorldSpace(Vec2::ZERO);
+	auto posInScene = GameInfo::getInstance()->battleScene->convertToNodeSpace(posInWorld);
+	if (posInScene.x < -50)
+	{
+		GameInfo::getInstance()->vEnemy.eraseObject(this);
+		this->removeFromParent();
+	}
 }

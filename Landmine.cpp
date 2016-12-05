@@ -40,6 +40,8 @@ bool Landmine::init()
 		AnimationCache::getInstance()->addAnimation(ani, "landmineExplode");
 	}
 
+	GameInfo::getInstance()->vEnemy.pushBack(this);
+
 	return 1;
 }
 
@@ -58,6 +60,13 @@ void Landmine::update(float dt)
 		unschedule("landmine");
 		unscheduleUpdate();
 	}
+	auto posInWorld = this->convertToWorldSpace(Vec2::ZERO);
+	auto posInScene = GameInfo::getInstance()->battleScene->convertToNodeSpace(posInWorld);
+	if (posInScene.x < -50)
+	{
+		GameInfo::getInstance()->vEnemy.eraseObject(this);
+		this->removeFromParent();
+	}
 }
 
 void Landmine::updateSprite(float dt)
@@ -72,7 +81,6 @@ void Landmine::explode()
 {
 	unschedule("landmine");
 	unscheduleUpdate();
-
 }
 
 void Landmine::resetPos()

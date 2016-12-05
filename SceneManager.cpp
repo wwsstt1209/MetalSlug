@@ -50,3 +50,9 @@ Scene* SceneManager::getBattleScene2()
 	auto battleScene2 = BattleScene2::createScene();
 	return battleScene2;
 }
+
+Scene* SceneManager::getBattleScene3()
+{
+	auto battleScene3 = BattleScene3::createScene();
+	return battleScene3;
+}

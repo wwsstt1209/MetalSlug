@@ -10,6 +10,7 @@ public:
 	static Tank* create();
 	bool init();
 	void shootUpdate(float dt);
+	void update(float dt);
 private:
 	Sprite* m_0 = nullptr;
 	Sprite* m_1 = nullptr;

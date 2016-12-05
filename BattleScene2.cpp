@@ -28,7 +28,7 @@ bool BattleScene2::init()
 	loadAllResource();
 
 	auto myHero = Hero::create();			//创建英雄
-	myHero->setPosition(Vec2(110, 80));
+	myHero->setPosition(Vec2(80, 80));
 	this->addChild(myHero, 3);
 	myHero->setScaleX(-1);
 	myHero->setName("hero");
@@ -39,12 +39,12 @@ bool BattleScene2::init()
 	this->addChild(bg1, -1);
 	Battle2Manager::getInstance()->m_bg1 = bg1;
 
-	//auto tank = Tank::create();
-	//tank->setPosition(400, 100);
-	//bg1->addChild(tank);
-
-	//auto mine = Landmine::create();
-	//mine->setPosition(400, 70);
+	auto h = Hostage::create();
+	h->setPosition(450, 120);
+	bg1->addChild(h);
+	auto h2 = Hostage::create();
+	h2->setPosition(350, 120);
+	bg1->addChild(h2);
 
 	//createMotorBike(1);
 	
@@ -52,10 +52,6 @@ bool BattleScene2::init()
 	bg2->setPosition(Vec2(560, 0) + visibleSize / 2);
 	this->addChild(bg2, -1);
 	Battle2Manager::getInstance()->m_bg2 = bg2;
-
-	auto hostage1 = Hostage::create();
-	bg2->addChild(hostage1);
-	hostage1->setPosition(Vec2(100, 120));
 
 	auto lis = EventListenerKeyboard::create();						//键盘监听器
 	lis->onKeyPressed = CC_CALLBACK_2(BattleScene2::pressKeyCallback, this);
@@ -144,6 +140,12 @@ void BattleScene2::releaseKeyCallback(EventKeyboard::KeyCode code, Event* evt)
 
 void BattleScene2::loadAllResource()
 {
+	for (int i = 0; i < 8; ++i)
+	{
+		auto filename = StringUtils::format("scene1/image%d.jpg", 259 + i * 2);
+		Director::getInstance()->getTextureCache()->addImage(filename);
+	}
+
 	if (AnimationCache::getInstance()->getAnimation("bomb") == nullptr)		//加载手雷爆炸动画
 	{
 		auto bombAnimation = Animation::create();
@@ -188,6 +190,28 @@ void BattleScene2::loadAllResource()
 		}
 		AnimationCache::getInstance()->addAnimation(Animation::createWithSpriteFrames(vDead, 0.1), "dead3");
 	}
+
+	SpriteFrameCache::getInstance()->addSpriteFramesWithFile("enemy1/jiqiangbing.plist");
+	if (AnimationCache::getInstance()->getAnimation("enemyStandShoot") == nullptr)
+	{
+		Vector<SpriteFrame*>vec;
+		for (int i = 0; i < 6; ++i)
+		{
+			auto fileName = StringUtils::format("image%d.png", 549 + i * 2);
+			vec.pushBack(SpriteFrameCache::getInstance()->getSpriteFrameByName(fileName));
+		}
+		AnimationCache::getInstance()->addAnimation(Animation::createWithSpriteFrames(vec, 0.1), "enemyStandShoot");
+	}
+	if (AnimationCache::getInstance()->getAnimation("enemyStand") == nullptr)
+	{
+		Vector<SpriteFrame*>vec;
+		for (int i = 0; i < 2; ++i)
+		{
+			auto fileName = StringUtils::format("image%d.png", 414 + i * 2);
+			vec.pushBack(SpriteFrameCache::getInstance()->getSpriteFrameByName(fileName));
+		}
+		AnimationCache::getInstance()->addAnimation(Animation::createWithSpriteFrames(vec, 0.5), "enemyStand");
+	}
 }
 
 void BattleScene2::update1(float dt)
@@ -210,9 +234,34 @@ void BattleScene2::update1(float dt)
 			bg1->setPositionX(bg2->getPositionX() + 560);
 			switch (Battle2Manager::getInstance()->m_bg1_num)
 			{
-			case 2:
+			case 2://3
+			{
+				auto plane = EnemyPlane2::create();
+				this->addChild(plane);
+				plane->setPosition(200, 550);
+				plane->runAction(MoveBy::create(2, Vec2(0, -200)));
+
+				createBombWave(bg1);
+				createLandMines(3, 100, bg1);
+				createMotorBike();
+			}
 				break;
-			case 3:
+			case 3://5
+			{
+				auto enemy = Enemy2::create();
+				bg1->addChild(enemy);
+				enemy->setPosition(300, 100);
+
+				auto enemy2 = Enemy2::create();
+				bg1->addChild(enemy);
+				enemy->setPosition(200, 100);
+
+				auto tank = Tank::create();
+				tank->setPosition(400, 100);
+				bg1->addChild(tank);
+
+				createMotorBike();
+			}
 				break;
 			default:
 				break;
@@ -227,11 +276,37 @@ void BattleScene2::update1(float dt)
 			bg2->setPositionX(bg1->getPositionX() + 560);
 			switch (Battle2Manager::getInstance()->m_bg2_num)
 			{
-			case 2:
+			case 2://4
+			{
+				createBombWave(bg2);
+				createLandMines(3, 100, bg2);
+				createMotorBike();
+
+				auto tank = Tank::create();
+				tank->setPosition(400, 100);
+				bg2->addChild(tank);
+			}
 				break;
-			case 3:
+			case 3://6
+			{
+				auto enemy = Enemy2::create();
+				bg2->addChild(enemy);
+				enemy->setPosition(300, 100);
+
+				auto enemy2 = Enemy2::create();
+				bg2->addChild(enemy);
+				enemy->setPosition(200, 100);
+
+				auto plane = EnemyPlane2::create();
+				this->addChild(plane);
+				plane->setPosition(200, 550);
+				plane->runAction(MoveBy::create(2, Vec2(0, -200)));
+				
+				createMotorBike();
+			}
 				break;
 			default:
+				//人质释放
 				break;
 			}
 		}
@@ -270,9 +345,10 @@ void BattleScene2::createBombWave(Node* n)
 	}
 }
 
-void BattleScene2::createMotorBike(bool left)
+void BattleScene2::createMotorBike()
 {
-	if (left)
+	float left = CCRANDOM_0_1();
+	if (left >= 0.5)
 	{
 		auto motor = Motorbike::create();
 		this->addChild(motor, 4);
@@ -288,3 +364,15 @@ void BattleScene2::createMotorBike(bool left)
 		motor->setSpeed(-8);
 	}
 }
+
+void BattleScene2::createLandMines(int number, float startX, Node* n)
+{
+	for (int i = 0; i < number; ++i)
+	{
+		auto mine = Landmine::create();
+		mine->setPosition(Vec2(startX + i * 100, 70));
+		n->addChild(mine);
+	}
+}
+
+//tank hostage landmine 出屏幕释放

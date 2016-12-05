@@ -83,6 +83,4 @@ void Cannon::fireUpdate()
 {
 	auto b = Bullet::create();
 	b->initCannonBullet(m_toward);
-	GameInfo::getInstance()->battleScene->addChild(b, 1);
-	GameInfo::getInstance()->vHeroBullet.pushBack(b);
 }

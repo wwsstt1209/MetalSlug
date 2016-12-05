@@ -22,6 +22,8 @@ public:
 	void update4(float dt);
 	void initByTank(float speed);
 	void update5(float dt);
+	void initEnemy2Bullet(float speedX);
+	void update6(float dt);
 private:
 	bool m_ownToPlayer;
 	float m_speed;

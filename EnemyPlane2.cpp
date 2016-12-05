@@ -32,8 +32,10 @@ bool EnemyPlane2::init()
 	this->addChild(m_airscrew);
 
 	schedule(CC_CALLBACK_1(EnemyPlane2::flyUpdate, this), 0.02, "fly");
-	schedule(CC_CALLBACK_1(EnemyPlane2::shootUpdate, this), 4, "shoot");
+	schedule(CC_CALLBACK_1(EnemyPlane2::shootUpdate, this), 3, "shoot");
 	scheduleUpdate();
+
+	GameInfo::getInstance()->vEnemy.pushBack(this);
 
 	return 1;
 }
@@ -42,11 +44,11 @@ void EnemyPlane2::update(float dt)
 {
 	if (m_moveToRight)
 	{
-		this->setPositionX(this->getPositionX() + 0.8);
+		this->setPositionX(this->getPositionX() + 2);
 	}
 	else
 	{
-		this->setPositionX(this->getPositionX() - 0.8);
+		this->setPositionX(this->getPositionX() - 2);
 	}
 	if (this->getPositionX() > Director::getInstance()->getVisibleSize().width - 50)
 	{
@@ -80,8 +82,6 @@ void EnemyPlane2::shootUpdate(float dt)
 		auto b = Bullet::create();
 		b->initEnemyPlaneBullet2(3);
 		b->setPosition(Vec2(0, -85) + this->getPosition());
-		GameInfo::getInstance()->battleScene->addChild(b, 3);
-		GameInfo::getInstance()->vEnemyBullet.pushBack(b);
 	});
 	this->runAction(Sequence::create(shootCallback, DelayTime::create(0.3), shootCallback, DelayTime::create(0.3), shootCallback,nullptr));
 }

@@ -38,6 +38,10 @@ bool Motorbike::init()
 void Motorbike::update(float dt)
 {
 	this->setPositionX(this->getPositionX() + m_speed);
+	if ((m_speed < 0 && this->getPositionX() < 0) || (m_speed > 0 && this->getPositionX() > 560))
+	{
+		this->removeFromParent();
+	}
 }
 
 void Motorbike::textureUpdate(float dt)

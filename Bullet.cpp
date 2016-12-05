@@ -49,6 +49,8 @@ void Bullet::update(float dt)
 
 void Bullet::initData(float speed, int toward)
 {
+	GameInfo::getInstance()->battleScene->addChild(this, 3);
+	GameInfo::getInstance()->vHeroBullet.pushBack(this);
 	m_ownToPlayer = 0;
 	m_speed = speed;
 	m_toward = toward;
@@ -69,6 +71,8 @@ void Bullet::initData(float speed, int toward)
 
 void Bullet::initEnemyBullet(float speed)
 {
+	GameInfo::getInstance()->battleScene->addChild(this, 1);
+	GameInfo::getInstance()->vEnemyBullet.pushBack(this);
 	if (GameInfo::getInstance()->m_hero)
 	{
 		m_ownToPlayer = 0;
@@ -101,6 +105,8 @@ void Bullet::initEnemyBullet(float speed)
 
 void Bullet::initEnemyPlaneBullet1(float speedY)
 {
+	GameInfo::getInstance()->battleScene->addChild(this, 3);
+	GameInfo::getInstance()->vEnemyBullet.pushBack(this);
 	m_ownToPlayer = 0;
 	m_bulletSprite->initWithFile("image720.png");
 	m_speedXY = Vec2(0, speedY);
@@ -110,6 +116,8 @@ void Bullet::initEnemyPlaneBullet1(float speedY)
 
 void Bullet::initEnemyPlaneBullet2(float speedY)
 {
+	GameInfo::getInstance()->battleScene->addChild(this, 3);
+	GameInfo::getInstance()->vEnemyBullet.pushBack(this);
 	m_ownToPlayer = 0;
 	m_speedXY = Vec2(0, speedY);
 	m_bulletSprite->initWithFile("image1234.png");
@@ -125,6 +133,8 @@ void Bullet::initEnemyPlaneBullet2(float speedY)
 
 void Bullet::initCannonBullet(int toward)
 {
+	GameInfo::getInstance()->battleScene->addChild(this, 1);
+	GameInfo::getInstance()->vHeroBullet.pushBack(this);
 	m_ownToPlayer = 1;
 	m_bulletSprite->initWithFile("image2376.png");
 	m_toward = toward;
@@ -194,6 +204,8 @@ void Bullet::update4(float dt)
 
 void Bullet::initByTank(float speed)
 {
+	GameInfo::getInstance()->vEnemyBullet.pushBack(this);
+	GameInfo::getInstance()->battleScene->addChild(this, 0);
 	m_bulletSprite = Sprite::create("image2969.png");
 	auto callback1 = CallFunc::create([this]()->void {
 		m_bulletSprite->initWithFile("image2971.png");
@@ -202,7 +214,6 @@ void Bullet::initByTank(float speed)
 		m_bulletSprite->initWithFile("image2969.png");
 	});
 	this->addChild(m_bulletSprite);
-	GameInfo::getInstance()->vEnemyBullet.pushBack(this);
 	m_bulletSprite->runAction(RepeatForever::create(Sequence::create(callback1, DelayTime::create(0.5), callback2, DelayTime::create(0.5), nullptr)));
 	m_speed = speed;
 	schedule(CC_CALLBACK_1(Bullet::update5, this), 1.0f / 60, "tankBullet");
@@ -211,4 +222,38 @@ void Bullet::initByTank(float speed)
 void Bullet::update5(float dt)
 {
 	this->setPositionX(this->getPositionX() - m_speed);
+}
+
+void Bullet::initEnemy2Bullet(float speedX)
+{
+	GameInfo::getInstance()->vEnemyBullet.pushBack(this);
+	GameInfo::getInstance()->battleScene->addChild(this);
+	if (GameInfo::getInstance()->m_hero)
+	{
+		m_ownToPlayer = 0;
+		m_speed = speedX;
+		if (AnimationCache::getInstance()->getAnimation("enemyBullet") == nullptr)
+		{
+			Vector<SpriteFrame*>vSf;
+			for (int i = 0; i < 3; ++i)
+			{
+				auto filename = StringUtils::format("image%d.png", 1264 + i * 2);
+				vSf.pushBack(SpriteFrame::create(filename, Rect(0, 0, 18, 18)));
+			}
+			AnimationCache::getInstance()->addAnimation(Animation::createWithSpriteFrames(vSf, 0.3), "enemyBullet");
+		}
+		m_bulletSprite->initWithFile("image1264.png");
+		m_bulletSprite->runAction(RepeatForever::create(Animate::create(AnimationCache::getInstance()->getAnimation("enemyBullet"))));
+	}
+	else
+	{
+		GameInfo::getInstance()->vEnemyBullet.eraseObject(this);
+		this->removeFromParent();
+	}
+	schedule(CC_CALLBACK_1(Bullet::update6, this), 1.0f / 60, "enemy2Bullet");
+}
+
+void Bullet::update6(float dt)
+{
+	this->setPositionX(this->getPositionX() + m_speed);
 }

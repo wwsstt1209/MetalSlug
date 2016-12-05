@@ -27,6 +27,8 @@ bool Enemy::init()
 	this->addChild(m_body);
 	m_shootPoint = Vec2(-50, -75);
 
+	GameInfo::getInstance()->vEnemy.pushBack(this);
+
 	return 1;
 }
 
@@ -63,8 +65,6 @@ void Enemy::update(float dt)
 void Enemy::shootUpdate(float dt)
 {
 	auto b = Bullet::create();
-	GameInfo::getInstance()->battleScene->addChild(b, 1);
 	b->setPosition(m_shootPoint + this->getPosition());
 	b->initEnemyBullet(2);
-	GameInfo::getInstance()->vEnemyBullet.pushBack(b);
 }

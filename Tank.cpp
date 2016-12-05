@@ -55,6 +55,7 @@ bool Tank::init()
 	//});
 	//m_0->runAction(RepeatForever::create(Sequence::create(m0callbakc1, DelayTime::create(0.1), m0callbakc2, DelayTime::create(0.1), nullptr)));
 
+	scheduleUpdate();
 	schedule(CC_CALLBACK_1(Tank::shootUpdate, this), 3, "tankShoot");
 
 	return 1;
@@ -63,7 +64,11 @@ bool Tank::init()
 void Tank::shootUpdate(float dt)
 {
 	auto b = Bullet::create();
-	GameInfo::getInstance()->battleScene->addChild(b, 0);
 	b->setPosition(Vec2(-60, 30) + this->getPosition());
 	b->initByTank(5);
+}
+
+void Tank::update(float dt)
+{
+
 }

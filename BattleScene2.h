@@ -14,6 +14,7 @@ public:
 	void pressKeyCallback(EventKeyboard::KeyCode, Event*);
 	void releaseKeyCallback(EventKeyboard::KeyCode, Event*);
 	void createBombWave(Node*);
-	void createMotorBike(bool left);
+	void createMotorBike();
+	void createLandMines(int number, float startX, Node* n);
 	CREATE_FUNC(BattleScene2);
 };

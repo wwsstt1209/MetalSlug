@@ -217,7 +217,6 @@ void BattleScene1::update(float dt)
 		this->addChild(plane, 2);
 		plane->setPosition(450, 500);
 		plane->runAction(MoveBy::create(2, Vec2(0, -150)));
-		GameInfo::getInstance()->vEnemy.pushBack(plane);
 		++Battle1Manager::getInstance()->m_airEnemyWave;
 	}
 	else if (Battle1Manager::getInstance()->m_airEnemyWave == 5)
@@ -227,7 +226,6 @@ void BattleScene1::update(float dt)
 		this->addChild(plane, 3);
 		plane->setPosition(200, 550);
 		plane->runAction(MoveBy::create(2, Vec2(0, -150)));
-		GameInfo::getInstance()->vEnemy.pushBack(plane);
 		++Battle1Manager::getInstance()->m_airEnemyWave;
 	}
 	else if (Battle1Manager::getInstance()->m_airEnemyWave == 7)
@@ -292,7 +290,6 @@ void BattleScene1::createNewEnemyWave()
 		unschedule("createEnemy");
 		++Battle1Manager::getInstance()->m_airEnemyWave;
 	}
-	GameInfo::getInstance()->vEnemy.pushBack(enemy);
 }
 
 void BattleScene1::createNewBombWave()

@@ -28,6 +28,7 @@ bool EnemyPlane1::init()
 	this->addChild(m_plane);
 	m_airscrew = Sprite::create("image705.png");
 	this->addChild(m_airscrew);
+	GameInfo::getInstance()->vEnemy.pushBack(this);
 
 	schedule(CC_CALLBACK_1(EnemyPlane1::flyUpdate, this), 0.02, "fly");
 	schedule(CC_CALLBACK_1(EnemyPlane1::shootUpdate, this), 5, "shoot");
@@ -56,6 +57,4 @@ void EnemyPlane1::shootUpdate(float dt)
 	auto b = Bullet::create();
 	b->initEnemyPlaneBullet1(18);
 	b->setPosition(this->getPosition());
-	GameInfo::getInstance()->battleScene->addChild(b, 3);
-	GameInfo::getInstance()->vEnemyBullet.pushBack(b);
 }

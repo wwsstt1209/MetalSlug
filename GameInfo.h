@@ -16,6 +16,7 @@ public:
 	Vector<Node*>vHeroBomb;
 	Vector<Node*>vEnemyBomb;
 	Vector<Node*>vEnemy;
+	Vector<Node*>vAirEnemy;
 	Layer* battleScene;
 	int m_inBattleNum;
 private:

@@ -25,6 +25,8 @@ bool BattleScene3::init()
 	GameInfo::getInstance()->battleScene = this;
 	GameInfo::getInstance()->m_inBattleNum = 3;
 
+	loadResources();
+
 	auto lis = EventListenerKeyboard::create();						//¼üÅÌ¼àÌýÆ÷
 	lis->onKeyPressed = CC_CALLBACK_2(BattleScene3::pressKeyCallback, this);
 	lis->onKeyReleased = CC_CALLBACK_2(BattleScene3::releaseKeyCallback, this);
@@ -44,6 +46,7 @@ bool BattleScene3::init()
 	this->addChild(plane);
 	plane->setPosition(Vec2(80, 200));
 	plane->flyInScene3();
+	GameInfo::getInstance()->m_hero = plane;
 
 	scheduleUpdate();
 
@@ -60,11 +63,60 @@ void BattleScene3::update(float dt)
 		bg1->setPositionX(bg2->getPositionX() + 560);
 	else if (bg2->getPositionX() <= -280)
 		bg2->setPositionX(bg1->getPositionX() + 560);
+
+	auto manager = Battle3Manager::getInstance();
+	if (GameInfo::getInstance()->vAirEnemy.size() == 0 && GameInfo::getInstance()->vEnemyBomb.size() == 0 && Battle3Manager::getInstance()->m_CreateFinish)
+	{
+		switch (manager->m_waveIndex)
+		{
+		case 0:
+			Battle3Manager::getInstance()->m_CreateFinish = 0;
+			schedule(CC_CALLBACK_0(BattleScene3::createLittlePlaneBtoT, this), 0.5, "littlePlane");
+			++manager->m_waveIndex;
+			break;
+		case 1:
+			createBombInAir();
+			++manager->m_waveIndex;
+			break;
+		case 2:
+			Battle3Manager::getInstance()->m_CreateFinish = 0;
+			schedule(CC_CALLBACK_0(BattleScene3::createLittlePlaneTtoB, this), 0.5, "littlePlane2");
+			++manager->m_waveIndex;
+			break;
+		case 3:
+			createBikeEnemyInAir();
+			++manager->m_waveIndex;
+			break;
+		case 4:
+			schedule(CC_CALLBACK_0(BattleScene3::createAirMachineEnemy, this), 3, 3, 0, "EnemyAirBike");
+			++manager->m_waveIndex;
+			break;
+		case 5:
+			++manager->m_waveIndex;
+			break;
+		case 6:
+			++manager->m_waveIndex;
+			break;
+		case 7:
+			++manager->m_waveIndex;
+			break;
+		case 8:
+			++manager->m_waveIndex;
+			break;
+		case 9:
+			++manager->m_waveIndex;
+			break;
+		case 10:
+			++manager->m_waveIndex;
+			break;
+		}
+	}
 }
 
 void BattleScene3::pressKeyCallback(EventKeyboard::KeyCode code, Event* evt)
 {
 	auto state = &(Battle3Manager::getInstance()->m_keyState);
+	auto plane = (Heroplane*)(GameInfo::getInstance()->m_hero);
 	switch (code)
 	{
 	case EventKeyboard::KeyCode::KEY_W:
@@ -79,12 +131,19 @@ void BattleScene3::pressKeyCallback(EventKeyboard::KeyCode code, Event* evt)
 	case EventKeyboard::KeyCode::KEY_D:
 		(*state) |= 1;
 		break;
+	case EventKeyboard::KeyCode::KEY_J:
+		plane->shoot();
+		break;
+	case EventKeyboard::KeyCode::KEY_L:
+		plane->shootBomb();
+		break;
 	}
 }
 
 void BattleScene3::releaseKeyCallback(EventKeyboard::KeyCode code, Event* evt)
 {
 	auto state = &(Battle3Manager::getInstance()->m_keyState);
+	auto plane = (Heroplane*)(GameInfo::getInstance()->m_hero);
 	switch (code)
 	{
 	case EventKeyboard::KeyCode::KEY_W:
@@ -100,4 +159,72 @@ void BattleScene3::releaseKeyCallback(EventKeyboard::KeyCode code, Event* evt)
 		(*state) &= 14;
 		break;
 	}
+}
+
+void BattleScene3::createLittlePlaneBtoT()
+{
+	auto tiny = TineEnemyPlane::create();
+	this->addChild(tiny);
+	tiny->setPosition(Vec2(600, 50 + 50*Battle3Manager::getInstance()->m_tinyIndex));
+	++Battle3Manager::getInstance()->m_tinyIndex;
+	if (Battle3Manager::getInstance()->m_tinyIndex == 7)
+	{
+		Battle3Manager::getInstance()->m_tinyIndex = 0;
+		Battle3Manager::getInstance()->m_CreateFinish = 1;
+		unschedule("littlePlane");
+	}
+}
+
+void BattleScene3::createLittlePlaneTtoB()
+{
+	auto tiny = TineEnemyPlane::create();
+	this->addChild(tiny);
+	tiny->setPosition(Vec2(600, 350 - 50 * Battle3Manager::getInstance()->m_tinyIndex));
+	++Battle3Manager::getInstance()->m_tinyIndex;
+	if (Battle3Manager::getInstance()->m_tinyIndex == 7)
+	{
+		Battle3Manager::getInstance()->m_tinyIndex = 0;
+		Battle3Manager::getInstance()->m_CreateFinish = 1;
+		unschedule("littlePlane2");
+	}
+}
+
+void BattleScene3::loadResources()
+{
+	SpriteFrameCache::getInstance()->addSpriteFramesWithFile("airEnemy/EnemyInAir.plist");
+	if (AnimationCache::getInstance()->getAnimation("EnemyInAir") == nullptr)
+	{
+		Vector<SpriteFrame*>vec;
+		for (int i = 0; i < 6; ++i)
+		{
+			auto fileName = StringUtils::format("image%d.png", 3036 + i * 2);
+			vec.pushBack(SpriteFrameCache::getInstance()->getSpriteFrameByName(fileName));
+		}
+		AnimationCache::getInstance()->addAnimation(Animation::createWithSpriteFrames(vec, 0.1),"EnemyInAir");
+	}
+}
+
+void BattleScene3::createBombInAir()
+{
+	for (int i = 0; i < 10; ++i)
+	{
+		auto bomb = EnemyBomb::create();
+		bomb->initInAir();
+		bomb->setPosition(Vec2(600 + CCRANDOM_0_1() * 500, 50 + CCRANDOM_0_1() * 300));
+	}
+}
+
+void BattleScene3::createBikeEnemyInAir()
+{
+	for (int i = 0; i < 5; ++i)
+	{
+		auto enemy = EnemyInAir::create();
+		this->addChild(enemy);
+		enemy->setPosition(Vec2(600 + (i + 1) / 2 * 100, 200 + pow(-1, i % 2)*(i + 1) / 2 * 80));
+	}
+}
+
+void BattleScene3::createAirMachineEnemy()
+{
+
 }

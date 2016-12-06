@@ -13,6 +13,8 @@ public:
 	void go();
 	void flyInScene3();
 	void update(float dt);
+	void shoot();
+	void shootBomb();
 private:
 	Sprite* m_head;
 	Sprite* m_body;

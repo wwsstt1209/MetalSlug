@@ -54,8 +54,6 @@ bool EnemyBomb::init()
 
 void EnemyBomb::initWithUmbrella()
 {
-	GameInfo::getInstance()->vEnemyBomb.pushBack(this);
-
 	m_bomb = Sprite::create("enemyBomb/image711.png");
 	this->addChild(m_bomb);
 	m_bomb->runAction(RepeatForever::create(Animate::create(AnimationCache::getInstance()->getAnimation("EnemyBomb"))));
@@ -95,9 +93,11 @@ void EnemyBomb::update(float dt)
 	if (fabs(m_bomb->getPositionX() - posHeroInBomb.x) <= 25 && fabs(m_bomb->getPositionY() - posHeroInBomb.y) <= 75)
 	{
 		m_bomb->stopAllActions();
+		m_bomb->setRotation(0);
 		if (m_umbrella)
 			m_umbrella->setVisible(0);
 		auto release = CallFunc::create([this]()->void{
+			GameInfo::getInstance()->vEnemyBomb.eraseObject(this);
 			this->removeFromParent();
 		});
 		m_bomb->runAction(Sequence::create(Animate::create(AnimationCache::getInstance()->getAnimation("eBombExplode")), release, nullptr));
@@ -109,5 +109,40 @@ void EnemyBomb::update(float dt)
 	{
 		GameInfo::getInstance()->vEnemyBomb.eraseObject(this);
 		this->removeFromParent();
+	}
+}
+
+void EnemyBomb::initInAir()
+{
+	m_bomb = Sprite::create("image3083.png");
+	this->addChild(m_bomb);
+	GameInfo::getInstance()->battleScene->addChild(this);
+
+	schedule(CC_CALLBACK_1(EnemyBomb::update3, this), 1.0f / 60, "bombInAir");
+}
+
+void EnemyBomb::update3(float dt)
+{
+ 	this->setPositionX(this->getPositionX() - 1);
+	m_bomb->setRotation(m_bomb->getRotation() - 10.0f * dt);
+	auto hero = GameInfo::getInstance()->m_hero;
+	auto posHeroInBomb = this->convertToNodeSpace(hero->getPosition());
+	if (fabs(m_bomb->getPositionX() - posHeroInBomb.x) <= 25 && fabs(m_bomb->getPositionY() - posHeroInBomb.y) <= 75)
+	{
+		m_bomb->stopAllActions();
+		m_bomb->setRotation(0);
+		if (m_umbrella)
+			m_umbrella->setVisible(0);
+		auto release = CallFunc::create([this]()->void {
+			this->removeFromParent();
+			GameInfo::getInstance()->vEnemyBomb.eraseObject(this);
+		});
+		m_bomb->runAction(Sequence::create(Animate::create(AnimationCache::getInstance()->getAnimation("eBombExplode")), release, nullptr));
+		unschedule("bombInAir");
+	}
+	if (this->getPositionX() <= -20)
+	{
+		this->removeFromParent();
+		GameInfo::getInstance()->vEnemyBomb.eraseObject(this);
 	}
 }

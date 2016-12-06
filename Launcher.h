@@ -11,6 +11,7 @@ public:
 	void initData(int gunType);
 	void initByHeroPlane();
 	void shoot(int toward);
+	void shootByHeroPlane(float speed, float radian);
 	void showShootEffect(int toward);
 private:
 	int m_level;   //0手枪  1机关枪  2导弹

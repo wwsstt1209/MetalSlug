@@ -12,7 +12,12 @@ public:
 	void update(float dt);
 	void pressKeyCallback(EventKeyboard::KeyCode, Event*);
 	void releaseKeyCallback(EventKeyboard::KeyCode, Event*);
+	void createLittlePlaneBtoT();
+	void createLittlePlaneTtoB();
+	void createBombInAir();
+	void createBikeEnemyInAir();
+	void createAirMachineEnemy();
+	void loadResources();
 	CREATE_FUNC(BattleScene3);
 private:
-
 };

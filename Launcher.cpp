@@ -80,7 +80,14 @@ void Launcher::shoot(int toward)
 
 void Launcher::initByHeroPlane()
 {
+	
+}
 
+void Launcher::shootByHeroPlane(float speed, float radian)
+{
+	auto b = Bullet::create();
+	b->initByHeroPlane(speed, radian);
+	b->setPosition(GameInfo::getInstance()->battleScene->convertToNodeSpace(this->convertToWorldSpace(Vec2::ZERO)));
 }
 
 void Launcher::showShootEffect(int toward)

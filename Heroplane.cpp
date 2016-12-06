@@ -69,7 +69,9 @@ void Heroplane::flyInScene3()
 	m_body->removeFromParent();
 	m_all->setVisible(1);
 	m_gun->setVisible(1);
-	//m_launcher = Launcher::create();
+	m_launcher = Launcher::create();
+	m_gun->addChild(m_launcher);
+	m_launcher->setPosition(Vec2(20, 10));
 	m_speedX = 3;
 	m_speedY = 2;
 	m_rotateSpeed = 2;
@@ -82,28 +84,50 @@ void Heroplane::update(float dt)
 	auto state = Battle3Manager::getInstance()->m_keyState;
 	if (state >> 3)
 	{
-		if (this->getPositionY() + m_speedY <= 400)
+		m_all->initWithFile("heroplane/image1918.png");
+		m_gun->setPosition(Vec2(0, 5));
+		if (this->getPositionY() + m_speedY <= 390)
 			this->setPositionY(this->getPositionY() + m_speedY);
 		if(!(state & 1) && !((state & 3) >> 1))
 			m_gun->setRotation(m_gun->getRotation() - m_rotateSpeed);
 	}
 	if ((state & 7) >> 2)
 	{
-		if (this->getPositionY() - m_speedY >= 0)
+		m_all->initWithFile("heroplane/image1921.png");
+		m_gun->setPosition(Vec2(0, -5));
+		if (this->getPositionY() - m_speedY >= 10)
 			this->setPositionY(this->getPositionY() - m_speedY);
 		if (!(state & 1) && !((state & 3) >> 1))
 			m_gun->setRotation(m_gun->getRotation() + m_rotateSpeed);
 	}
 	if ((state & 3) >> 1)
 	{
-		if (this->getPositionX() - m_speedX >= 0)
+		if (this->getPositionX() - m_speedX >= 10)
 			this->setPositionX(this->getPositionX() - m_speedX);
 		m_gun->setRotation(m_gun->getRotation() - m_rotateSpeed);
 	}
 	if ((state & 1))
 	{
-		if (this->getPositionX() + m_speedX <= 560)
+		if (this->getPositionX() + m_speedX <= 550)
 			this->setPositionX(this->getPositionX() + m_speedX);
 		m_gun->setRotation(m_gun->getRotation() + m_rotateSpeed);
 	}
+	if (state <= 3)
+	{
+		m_all->initWithFile("heroplane/image1912.png");
+		m_gun->setPosition(Vec2(0, 2));
+	}
+}
+
+void Heroplane::shoot()
+{
+	auto radian = CC_DEGREES_TO_RADIANS(m_gun->getRotation());
+	m_launcher->shootByHeroPlane(10, radian);
+}
+
+void Heroplane::shootBomb()
+{
+	auto b = Bullet::create();
+	b->initBombByHeroPlane();
+	b->setPosition(this->getPosition());
 }

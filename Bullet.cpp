@@ -35,7 +35,7 @@ void Bullet::update(float dt)
 	Rect wndRect;
 	if(GameInfo::getInstance()->m_inBattleNum == 1)
 		wndRect = Rect{ 0, 65, Director::getInstance()->getVisibleSize().width, Director::getInstance()->getVisibleSize().height };
-	else if(GameInfo::getInstance()->m_inBattleNum == 2)
+	else
 		wndRect = Rect{ 0, 0, Director::getInstance()->getVisibleSize().width, Director::getInstance()->getVisibleSize().height };
 	if (!wndRect.containsPoint(this->getPosition()))
 	{
@@ -257,4 +257,36 @@ void Bullet::initEnemy2Bullet(float speedX)
 void Bullet::update6(float dt)
 {
 	this->setPositionX(this->getPositionX() + m_speed);
+}
+
+void Bullet::initByHeroPlane(float speed, float radian)
+{
+	GameInfo::getInstance()->vHeroBullet.pushBack(this);
+	GameInfo::getInstance()->battleScene->addChild(this, 1);
+	m_speedXY = Vec2(speed*cos(radian), -speed*sin(radian));
+	this->m_ownToPlayer = 1;
+	this->setRotation(CC_RADIANS_TO_DEGREES(radian));
+	m_bulletSprite->initWithFile("image2403.png");
+	schedule(CC_CALLBACK_1(Bullet::update7, this), 1.0f / 60, "heroPlaneBullet");
+}
+
+void Bullet::update7(float dt)
+{
+	this->setPositionX(this->getPositionX() + m_speedXY.x);
+	this->setPositionY(this->getPositionY() + m_speedXY.y);
+}
+
+void Bullet::initBombByHeroPlane()
+{
+	GameInfo::getInstance()->vHeroBullet.pushBack(this);
+	GameInfo::getInstance()->battleScene->addChild(this, 1);
+	this->m_ownToPlayer = 1;
+	m_bulletSprite->initWithFile("image13.png");
+	schedule(CC_CALLBACK_1(Bullet::update8, this), 1.0f / 60, "heroPlaneBomb");
+}
+
+void Bullet::update8(float dt)
+{
+	this->setPositionX(this->getPositionX() + m_speedXY.x);
+	m_speedXY.x += 0.5;
 }

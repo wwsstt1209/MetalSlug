@@ -11,6 +11,7 @@ public:
 	void heroDead();
 	Node* m_hero;
 	Node* m_heroUI;
+	Node* m_boss;
 	Vector<Node*>vHeroBullet;
 	Vector<Node*>vEnemyBullet;
 	Vector<Node*>vHeroBomb;

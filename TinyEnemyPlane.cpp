@@ -24,7 +24,7 @@ bool TineEnemyPlane::init()
 
 	GameInfo::getInstance()->vAirEnemy.pushBack(this);
 
-	m_sprite = Sprite::create("image2977.png");
+	m_sprite = Sprite::create("tinyplane/image2977.png");
 	this->addChild(m_sprite);
 
 	m_speedMax = -10;
@@ -42,23 +42,17 @@ void TineEnemyPlane::update(float dt)
 	if (this->getPositionX() < 50)
 	{
 		m_sprite->stopAllActions();
-		m_sprite->initWithFile("image2999.png");
+		m_sprite->initWithFile("tinyplane/image2999.png");
 	}
 	else if (this->getPositionX() >= 50 && this->getPositionX() < 150)
 	{
 		m_sprite->stopAllActions();
-		m_sprite->initWithFile("image2997.png");
+		m_sprite->initWithFile("tinyplane/image2997.png");
 	}
 	else
 	{
-		m_sprite->initWithFile("image2977.png");
+		m_sprite->initWithFile("tinyplane/image2977.png");
 	}
-	//if (this->getPositionX() >= 80 && this->getPositionX() < 200)
-	//	m_sprite->initWithFile("image2995.png");
-	//if (this->getPositionX() >= 200 && this->getPositionX() < 380)
-	//	m_sprite->initWithFile("image2993.png");
-	//if (this->getPositionX() >= 380 && this->getPositionX() < 560)
-	//	m_sprite->initWithFile("image2991.png");
 
 	if (m_speedMax > 0)
 		m_sprite->setFlippedX(1);
@@ -66,5 +60,25 @@ void TineEnemyPlane::update(float dt)
 	{
 		GameInfo::getInstance()->vAirEnemy.eraseObject(this);
 		this->removeFromParent();
+		return;
+	}
+
+	for (int i = 0;i < GameInfo::getInstance()->vHeroBullet.size();++i)
+	{
+		auto posBulletInPlane = m_sprite->convertToNodeSpace(GameInfo::getInstance()->vHeroBullet.at(i)->getPosition());
+		Rect planeRect = { 0,0,m_sprite->getContentSize().width,m_sprite->getContentSize().height };
+		if (planeRect.containsPoint(posBulletInPlane))
+		{
+			GameInfo::getInstance()->vHeroBullet.at(i)->removeFromParent();
+			GameInfo::getInstance()->vHeroBullet.erase(i);
+			auto release = CallFunc::create([this]()->void {
+				GameInfo::getInstance()->vAirEnemy.eraseObject(this);
+				this->removeFromParent();
+			});
+			auto ani = AnimationCache::getInstance()->getAnimation("tinyExplode");
+			m_sprite->runAction(Sequence::create(Animate::create(ani), release, nullptr));
+			unscheduleUpdate();
+		}
+		return;
 	}
 }

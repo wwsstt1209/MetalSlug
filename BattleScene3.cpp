@@ -25,7 +25,7 @@ bool BattleScene3::init()
 	GameInfo::getInstance()->battleScene = this;
 	GameInfo::getInstance()->m_inBattleNum = 3;
 
-	loadResources();
+	AnimationManager::getInstance()->initBattle3Animation();
 
 	auto lis = EventListenerKeyboard::create();						//¼üÅÌ¼àÌýÆ÷
 	lis->onKeyPressed = CC_CALLBACK_2(BattleScene3::pressKeyCallback, this);
@@ -65,7 +65,7 @@ void BattleScene3::update(float dt)
 		bg2->setPositionX(bg1->getPositionX() + 560);
 
 	auto manager = Battle3Manager::getInstance();
-	if (GameInfo::getInstance()->vAirEnemy.size() == 0 && GameInfo::getInstance()->vEnemyBomb.size() == 0 && Battle3Manager::getInstance()->m_CreateFinish)
+	if (GameInfo::getInstance()->vAirEnemy.size() == 0 && Battle3Manager::getInstance()->m_CreateFinish)
 	{
 		switch (manager->m_waveIndex)
 		{
@@ -88,26 +88,31 @@ void BattleScene3::update(float dt)
 			++manager->m_waveIndex;
 			break;
 		case 4:
-			schedule(CC_CALLBACK_0(BattleScene3::createAirMachineEnemy, this), 3, 3, 0, "EnemyAirBike");
+			createAirMachineEnemy();
 			++manager->m_waveIndex;
 			break;
 		case 5:
+			createBombInAir();
+			createAirMachineEnemy();
 			++manager->m_waveIndex;
 			break;
 		case 6:
+			createBikeEnemyInAir();
+			createAirMachineEnemy();
 			++manager->m_waveIndex;
 			break;
 		case 7:
+			createBombInAir();
+			createBikeEnemyInAir();
 			++manager->m_waveIndex;
 			break;
 		case 8:
 			++manager->m_waveIndex;
+			createBoss();
 			break;
 		case 9:
-			++manager->m_waveIndex;
-			break;
-		case 10:
-			++manager->m_waveIndex;
+			unscheduleUpdate();
+			//Director::getInstance()->replaceScene();
 			break;
 		}
 	}
@@ -189,27 +194,12 @@ void BattleScene3::createLittlePlaneTtoB()
 	}
 }
 
-void BattleScene3::loadResources()
-{
-	SpriteFrameCache::getInstance()->addSpriteFramesWithFile("airEnemy/EnemyInAir.plist");
-	if (AnimationCache::getInstance()->getAnimation("EnemyInAir") == nullptr)
-	{
-		Vector<SpriteFrame*>vec;
-		for (int i = 0; i < 6; ++i)
-		{
-			auto fileName = StringUtils::format("image%d.png", 3036 + i * 2);
-			vec.pushBack(SpriteFrameCache::getInstance()->getSpriteFrameByName(fileName));
-		}
-		AnimationCache::getInstance()->addAnimation(Animation::createWithSpriteFrames(vec, 0.1),"EnemyInAir");
-	}
-}
-
 void BattleScene3::createBombInAir()
 {
 	for (int i = 0; i < 10; ++i)
 	{
-		auto bomb = EnemyBomb::create();
-		bomb->initInAir();
+		auto bomb = EnemyBombInAir::create();
+		this->addChild(bomb);
 		bomb->setPosition(Vec2(600 + CCRANDOM_0_1() * 500, 50 + CCRANDOM_0_1() * 300));
 	}
 }
@@ -220,11 +210,24 @@ void BattleScene3::createBikeEnemyInAir()
 	{
 		auto enemy = EnemyInAir::create();
 		this->addChild(enemy);
-		enemy->setPosition(Vec2(600 + (i + 1) / 2 * 100, 200 + pow(-1, i % 2)*(i + 1) / 2 * 80));
+		enemy->setPosition(Vec2(600 + (i + 1) / 2 * 200, 200 + pow(-1, i % 2)*(i + 1) / 2 * 60));
 	}
 }
 
 void BattleScene3::createAirMachineEnemy()
 {
+	auto machine = EnemyAirMachine::create();
+	this->addChild(machine);
+	machine->setPosition(Vec2(650, 400*CCRANDOM_0_1()));
+}
 
+void BattleScene3::createBoss()
+{
+	auto boss = Boss::create();
+	this->addChild(boss);
+	boss->launchScheduler();
+	boss->setScale(0.8);
+	GameInfo::getInstance()->m_boss = boss;
+	boss->setPosition(Vec2(800, 250));
+	boss->runAction(MoveBy::create(2, Vec2(-320, 0)));
 }

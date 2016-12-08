@@ -1,8 +1,10 @@
 #pragma once
 #include "cocos2d.h"
 #include "GameInfo.h"
-#include "Bullet.h"
 #include "EnemyBomb.h"
+#include "BossBomb.h"
+#include "BossBullet.h"
+#include "Gear.h"
 USING_NS_CC;
 
 class Boss :public Node
@@ -10,11 +12,18 @@ class Boss :public Node
 public:
 	static Boss* create();
 	bool init();
-	void update(float dt);
 	void breakTruck();
 	void breakTruckUpdate();
+	void launchScheduler();
+	void update(float dt);
+	void shootBullets();
+	void launchBombs();
 private:
-	Vector<Sprite*>m_vSprite;
+	Vector<Gear*>m_vGears;
+	Sprite* m_screw;
+	Sprite* m_fire;
+	float time = 0;
+	bool m_upToDown = 0;
 };
 
 //炸弹用EnemyBomb  EnemyBomb重写分类  并重写添加到BattleManager里的vEnemyBomb

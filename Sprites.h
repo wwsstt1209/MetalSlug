@@ -14,3 +14,4 @@
 #include "TinyEnemyPlane.h"
 #include "EnemyAirMachine.h"
 #include "EnemyInAir.h"
+#include "EnemyBombInAir.h"

@@ -2,6 +2,7 @@
 #include "cocos2d.h"
 #include "SceneManager.h"
 #include "Battle3Manager.h"
+#include "AnimationManager.h"
 USING_NS_CC;
 
 class BattleScene3 :public Layer
@@ -17,7 +18,7 @@ public:
 	void createBombInAir();
 	void createBikeEnemyInAir();
 	void createAirMachineEnemy();
-	void loadResources();
+	void createBoss();
 	CREATE_FUNC(BattleScene3);
 private:
 };
